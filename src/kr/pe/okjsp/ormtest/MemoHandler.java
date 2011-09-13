@@ -27,11 +27,11 @@ public class MemoHandler {
 	 * 게시글(게시글 아이디 : seq)에 해당하는 메모 리스트
 	 */
     public final static String MEMO_QUERY = 
-    		"from okboard_memo m where m.seq = :seq order by mseq";
+    		"from okboard_memo m where m.seq = :seq order by m.mseq";
 //  "select mseq, id, writer, bcomment, wtime, ip, sid from okboard_memo where seq = ? order by mseq";
 
     public final static String MEMO_COUNT =
-            "select count(mseq) from okboard_memo where bcomment like ?";
+            "select count(m.mseq) from okboard_memo m where bcomment like :bcomment";
 
     public final static String MEMO_RECENT_BCOMMENT =
     	"select mseq, a.id, a.writer, bcomment, a.wtime, a.seq, a.ip, a.sid from okboard_memo a, okboard b where " +
@@ -147,29 +147,29 @@ public class MemoHandler {
      * @return int
      */
     public int getCount() throws SQLException {
+    	Session hSession = null;
+    	Transaction hTransaction = null;
     	int cnt = 0;
-		Connection pconn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try {
+      
+    	try {
+    		hSession = HibernateUtil.getCurrentSession();
+    		hTransaction = hSession.beginTransaction();
+            
+            Query hQuery = hSession.createQuery(MEMO_COUNT);
+            hQuery.setString("bcomment", "%"+keyword+"%");
+            
+            cnt = (Integer) hQuery.uniqueResult();
 
-			pconn = dbCon.getConnection();
-			pstmt = pconn.prepareStatement(MEMO_COUNT);
-			pstmt.setString(1,"%"+keyword+"%");
-			rs = pstmt.executeQuery();
-
-			if(rs.next()) {
-				cnt = rs.getInt(1);
-			}
-			rs.close();
-			pstmt.close();
-		} catch(Exception e) {
-			System.out.println(e.toString());
-		} finally {
-			dbCon.close(pconn, pstmt, rs);
-		}
-
-        return cnt;
+            hTransaction.commit();
+    	} catch (HibernateException e) {
+    		hTransaction.rollback();
+    		e.printStackTrace();
+    	} finally {
+    		// 세션 닫기
+    		HibernateUtil.closeSession();
+    	}
+    	
+    	return cnt;
     }
 
 	/**

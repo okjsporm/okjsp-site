@@ -54,7 +54,6 @@ public class MemoDao {
     	
     	Session hSession = null;
     	Transaction hTransaction = null;
-    	List memos = null;
     	MemoBean memoBean = null;
     	
     	try {
@@ -82,9 +81,7 @@ public class MemoDao {
 //			
 //			hSession.save(memoBean);
             
-            memos = hSession.createQuery(QUERY_MEMO_SEQ).list();
-            
-            mseq = memos.indexOf(0);
+            mseq = (Integer) hSession.createQuery(QUERY_MEMO_SEQ).uniqueResult();
 
 			// memo ют╥б
 			Query hQuery = hSession.createQuery(QUERY_MEMO_ADD);

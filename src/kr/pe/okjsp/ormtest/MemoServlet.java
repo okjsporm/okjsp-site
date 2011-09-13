@@ -98,7 +98,7 @@ public class MemoServlet extends HttpServlet {
 					id = req.getParameter("okid");
 				}
 				
-				memocnt = memoDao.write(conn, id, sid, writer, bcomment,
+				memocnt = memoDao.write(id, sid, writer, bcomment,
 						memopass, ip, seq);
 				CommonUtil.setCookie(res, "memo", "true", 525600);
 			}

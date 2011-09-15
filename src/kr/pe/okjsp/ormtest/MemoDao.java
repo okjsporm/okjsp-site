@@ -4,8 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Iterator;
-import java.util.List;
 
 import kr.pe.okjsp.member.PointDao;
 import kr.pe.okjsp.util.DbCon;
@@ -34,7 +32,6 @@ public class MemoDao {
      * 메모 기록
      * # 20091018 서영아빠 CUBRID로 마이그레이션 하면서 시퀀스 자동생성 방법으로 바뀜
      * </pre>
-     * @param conn
      * @param id
      * @param sid
      * @param writer
@@ -120,15 +117,18 @@ public class MemoDao {
     public void setCount(int seq, int memocnt) throws SQLException {
     	Session hSession = null;
     	Transaction hTransaction = null;
-    	Query hQuery = null;
+//    	Query hQuery = null;
     	
     	try {
     		hSession = HibernateUtil.getCurrentSession();
             hTransaction = hSession.beginTransaction();
             
-    		hQuery = hSession.createQuery(QUERY_MEMO_COUNT);
-    		hQuery.setInteger   ("memo", memocnt);
-    		hQuery.setInteger   ("seq", seq);
+//    		hQuery = hSession.createQuery(QUERY_MEMO_COUNT);
+//    		hQuery.setInteger   ("memo", memocnt);
+//    		hQuery.setInteger   ("seq", seq);
+    		
+    		Article loadedArticle = (Article) hSession.get( Article.class, seq);
+    		loadedArticle.setMemo(memocnt);
 			
     		hTransaction.commit();
 		} catch (Exception e) {

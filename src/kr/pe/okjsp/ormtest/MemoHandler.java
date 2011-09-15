@@ -28,7 +28,6 @@ public class MemoHandler {
 	 */
     public final static String MEMO_QUERY = 
     		"from okboard_memo m where m.seq = :seq order by m.mseq";
-//  "select mseq, id, writer, bcomment, wtime, ip, sid from okboard_memo where seq = ? order by mseq";
 
     public final static String MEMO_COUNT =
             "select count(m.mseq) from okboard_memo m where bcomment like :bcomment";

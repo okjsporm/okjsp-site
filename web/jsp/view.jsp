@@ -1,4 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<%@page import="org.hibernate.HibernateException"%>
+<%@page import="kr.pe.okjsp.util.HibernateUtil"%>
+<%@page import="org.hibernate.Transaction"%>
+<%@page import="org.hibernate.Session"%>
 <%@page import="kr.pe.okjsp.util.HttpLinker"%>
 <%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %>
 <%@ page import="java.util.*,kr.pe.okjsp.util.CommonUtil,kr.pe.okjsp.*"
@@ -218,7 +222,8 @@ tag´Â <a href="<%= Navigation.getPath("SECURE_DOMAIN") %>/jsp/member/login.jsp">
 	</div>
 <div id="m" class="tablestyle">
 <%
-  ArrayList<MemoBean> memoList = new MemoHandler().getList(one.getSeq());
+
+  List<MemoBean> memoList = new MemoHandler().getList(one.getSeq());
   Iterator memo = null;
   if (memoList != null) {
     memo = memoList.iterator();

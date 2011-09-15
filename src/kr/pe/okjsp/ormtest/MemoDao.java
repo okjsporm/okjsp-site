@@ -1,8 +1,5 @@
 package kr.pe.okjsp.ormtest;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import kr.pe.okjsp.member.PointDao;
@@ -20,12 +17,6 @@ public class MemoDao {
 	final static String QUERY_MEMO_SEQ =
 		"select max(mseq) seq from okboard_memo";
 
-	final static String QUERY_MEMO_ADD =
-		"insert into okboard_memo (mseq, seq, id, sid, writer, bcomment, wtime, memopass, ip) values (:mseq,:seq,:id,:sid,:writer,bcomment,SYSTIMESTAMP,old_password(:memopass),:ip)";
-
-	final static String QUERY_MEMO_COUNT =
-        "update okboard set memo = memo + :memo where seq = :seq";
-	
 	final static String QUERY_GET_MEMO_COUNT = "select count(1) cnt from okboard_memo where seq = :seq";
 
 	/**
@@ -58,21 +49,26 @@ public class MemoDao {
     		hSession = HibernateUtil.getCurrentSession();
             hTransaction = hSession.beginTransaction();
             
+            
+			// mseq 일련번호 가져오기
             mseq = (Integer) hSession.createQuery(QUERY_MEMO_SEQ).uniqueResult();
 
+            mseq++;
+            
 			// memo 입력
-			Query hQuery = hSession.createQuery(QUERY_MEMO_ADD);
-			hQuery.setInteger("mseq", mseq);
-			hQuery.setInteger("seq", seq);
-			hQuery.setString("id", id);
-			hQuery.setLong  ("sid", sid);
-			hQuery.setString("writer", writer);
-			hQuery.setString("bcomment", bcomment);
-//			hQuery.setDate("wtime", arg1);
-			hQuery.setString("memopass", memopass);
-			hQuery.setString("ip", ip);
-			memocnt = hQuery.executeUpdate();
+            memoBean = new MemoBean();
+			memoBean.setMseq(mseq);
+			memoBean.setId(id);
+			memoBean.setSid(sid);
+			memoBean.setWriter(writer);
+			memoBean.setBcomment(bcomment);
+			memoBean.setMemoPass(memopass);
+			memoBean.setIp(ip);
+			memoBean.setSeq(mseq);
 			
+			hSession.save(memoBean);
+			
+			memocnt = 1;
 			if (sid > 0) {
 				new PointDao().log(sid, 2, 1, String.valueOf(mseq));
 			}
@@ -89,20 +85,22 @@ public class MemoDao {
     
     /**
      * 메모 카운트
-     * @param conn
      * @param seq
-     * @param memocnt
+     * @param addMemoCount
      * @throws SQLException
      */
-    public void setCount(int seq, int memocnt) throws SQLException {
+    public void setCount(int seq, int addMemoCount) throws SQLException {
     	Session hSession = null;
     	Transaction hTransaction = null;
+    	int memocnt;
     	
     	try {
     		hSession = HibernateUtil.getCurrentSession();
             hTransaction = hSession.beginTransaction();
             
+            // 쿼리에서 count를 더해주던 방식을 하이버네이트로 변경하면서 코드에서 count를 더해주는 방식으로 변경
     		Article loadedArticle = (Article) hSession.get( Article.class, seq);
+    		memocnt = loadedArticle.getMemo() + addMemoCount;
     		loadedArticle.setMemo(memocnt);
 			
     		hTransaction.commit();

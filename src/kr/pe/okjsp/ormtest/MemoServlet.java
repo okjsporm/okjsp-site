@@ -2,8 +2,6 @@ package kr.pe.okjsp.ormtest;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -13,16 +11,19 @@ import javax.servlet.http.HttpServletResponse;
 
 import kr.pe.okjsp.util.CommonUtil;
 import kr.pe.okjsp.util.DbCon;
+import kr.pe.okjsp.util.HibernateUtil;
 import kr.pe.okjsp.util.PropertyManager;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 public class MemoServlet extends HttpServlet {
 	DbCon dbCon = new DbCon();
 	private String MASTER_MEMO;
 	private static final long serialVersionUID = 3617008659201077558L;
 	final static String QUERY_MEMO_DEL =
-		"delete from okboard_memo where memopass = old_password(?) and mseq = ?";
-	final static String QUERY_MEMO_DEL2 =
-		"delete from okboard_memo where mseq = ?";
+		"delete from okboard_memo where memopass = old_password(:delpass) and mseq = :mseq";
 
 	public void init(ServletConfig config) throws ServletException {
 		MASTER_MEMO = PropertyManager.getString("MASTER_MEMO");
@@ -58,32 +59,32 @@ public class MemoServlet extends HttpServlet {
 		/*
 		 * db 입력
 		 */
-		Connection conn = null;
-		PreparedStatement pstmt = null;
+        Session hSession = null;
+    	Transaction hTransaction = null;
+    	
 		try {
 			if (!"okjsp".equalsIgnoreCase(doubleCheck)) {
 				throw new Exception("plz, help us.");
 			}
-
-			conn = dbCon.getConnection();
-			conn.setAutoCommit(false);
+			
+			hSession = HibernateUtil.getCurrentSession();
+            hTransaction = hSession.beginTransaction();
 
 			int memocnt = 0;
 			MemoDao memoDao = new MemoDao();
 			if (MASTER_MEMO.equals(delpass)) {
 				// memo 삭제
-				pstmt = conn.prepareStatement(QUERY_MEMO_DEL2);
-				pstmt.setInt(1, mseq);
-				memocnt = pstmt.executeUpdate();
-				pstmt.close();
-				memocnt = -memocnt;
+				MemoBean loadedMemo = (MemoBean) hSession.get( MemoBean.class, mseq);
+	            hSession.delete(loadedMemo);
+	            
+				memocnt = -1;
 			} else if (mseq > 0 && !"".equals(delpass)) {
 				// memo 삭제
-				pstmt = conn.prepareStatement(QUERY_MEMO_DEL);
-				pstmt.setString(1, delpass);
-				pstmt.setInt(2, mseq);
-				memocnt = pstmt.executeUpdate();
-				pstmt.close();
+				Query hQuery = hSession.createQuery(QUERY_MEMO_DEL);
+				hQuery.setString("delpass", delpass);
+				hQuery.setInteger("mseq", mseq);
+				
+				memocnt = hQuery.executeUpdate();	// return 1
 				memocnt = -memocnt;
 			} else {
 				// id cookie based
@@ -104,13 +105,14 @@ public class MemoServlet extends HttpServlet {
 			}
 
 			memoDao.setCount(seq, memocnt);
-			conn.commit();
+			hTransaction.commit();
 
 			CommonUtil.setCookie(res, "okwriter", writer);
 		} catch (Exception e) {
+			hTransaction.rollback();
 			System.out.println("MemoServlet:" + e.toString());
 		} finally {
-			dbCon.close(conn, pstmt);
+			HibernateUtil.closeSession();
 		}
 
 	    String togo = req.getHeader("referer");

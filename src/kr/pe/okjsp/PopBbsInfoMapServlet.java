@@ -4,16 +4,17 @@
  */
 package kr.pe.okjsp;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.http.HttpServlet;
 
-import kr.pe.okjsp.util.CommonUtil;
-import kr.pe.okjsp.util.DbCon;
+import kr.pe.okjsp.ormtest.BbsInfoBean;
+import kr.pe.okjsp.util.HibernateUtil;
+
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 /**
  * @author kenu
@@ -24,38 +25,36 @@ public class PopBbsInfoMapServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 4520095468646717761L;
 
+	@SuppressWarnings({ "unchecked", "rawtypes", "unused" })
 	public void init() {
 
 		HashMap bbsInfoMap = new HashMap();
-		String query = "select cseq, bbsid, \"name\", header from okboard_info";
+//		String query = "select info.cseq, info.bbsid, \"info.name\", info.header from okboard_info info";
 	
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
+		Session hSession = null;
+    	Transaction hTransaction = null;
 	
 		BbsInfoBean bbsInfoBean = null;
-		DbCon dbCon = new DbCon();
 		try {
-			conn = dbCon.getConnection();
-			pstmt = conn.prepareStatement(query);
-			rs = pstmt.executeQuery();
+			
+			hSession = HibernateUtil.getCurrentSession();
+            hTransaction = hSession.beginTransaction();
+            List<BbsInfoBean> listBbsInfo = hSession.createCriteria(BbsInfoBean.class).list();
+//            Query hQuery = hSession.createQuery(query);
+            Iterator<BbsInfoBean> iterator = listBbsInfo.iterator();
 		
-			while(rs.next()) {
-				bbsInfoBean = new BbsInfoBean();
-				bbsInfoBean.setCseq  (rs.getString("cseq"  ));
-				bbsInfoBean.setBbs   (rs.getString("bbsid" ));
-				bbsInfoBean.setName  (CommonUtil.a2k(rs.getString("name"  )));
-				bbsInfoBean.setHeader(CommonUtil.a2k(rs.getString("header")));
-
+			while(iterator.hasNext()) {
+				bbsInfoBean = (BbsInfoBean) iterator.next();
+				
 				bbsInfoMap.put(bbsInfoBean.getBbs(), bbsInfoBean);
 			} // end while
-			rs.close();
-			pstmt.close();
+			hTransaction.commit();
 		} catch(Exception e) {
+			hTransaction.rollback();
 			System.out.println("can't populate bbsInfoMap due to : "+e.toString());
 			e.printStackTrace();
 		} finally {
-			dbCon.close(conn, pstmt, rs);
+			HibernateUtil.closeSession();
 		} // end try catch
 		
 		// application scope¿¡ ³Ö¾îµÐ´Ù.

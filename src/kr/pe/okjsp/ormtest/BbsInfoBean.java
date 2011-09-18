@@ -6,6 +6,7 @@ package kr.pe.okjsp.ormtest;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
@@ -17,6 +18,7 @@ public class BbsInfoBean {
 	/**
 	 * @uml.property  name="bbs"
 	 */
+	@Id
 	@Column(name = "BBSID")
 	private String bbs;
 	/**

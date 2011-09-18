@@ -25,7 +25,7 @@ public class PopBbsInfoMapServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 4520095468646717761L;
 
-	@SuppressWarnings({ "unchecked", "rawtypes", "unused" })
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void init() {
 
 		HashMap bbsInfoMap = new HashMap();
@@ -39,6 +39,7 @@ public class PopBbsInfoMapServlet extends HttpServlet {
 			
 			hSession = HibernateUtil.getCurrentSession();
             hTransaction = hSession.beginTransaction();
+            
             List<BbsInfoBean> listBbsInfo = hSession.createCriteria(BbsInfoBean.class).list();
 //            Query hQuery = hSession.createQuery(query);
             Iterator<BbsInfoBean> iterator = listBbsInfo.iterator();

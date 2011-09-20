@@ -26,10 +26,10 @@ public class MemoHandler {
 	 * 게시글(게시글 아이디 : seq)에 해당하는 메모 리스트
 	 */
     public final static String MEMO_QUERY = 
-    		"from okboard_memo m where m.seq = :seq order by m.mseq";
+    		"from MemoBean m where m.seq = :seq order by m.mseq";
 
     public final static String MEMO_COUNT =
-            "select count(m.mseq) from okboard_memo m where bcomment like :bcomment";
+            "select count(m.mseq) from MemoBean m where bcomment like :bcomment";
 
     public final static String MEMO_RECENT_BCOMMENT =
     	"select mseq, a.id, a.writer, bcomment, a.wtime, a.seq, a.ip, a.sid from okboard_memo a, okboard b where " +

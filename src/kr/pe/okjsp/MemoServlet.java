@@ -23,7 +23,7 @@ public class MemoServlet extends HttpServlet {
 	private String MASTER_MEMO;
 	private static final long serialVersionUID = 3617008659201077558L;
 	final static String QUERY_MEMO_DEL =
-		"delete from okboard_memo where memopass = old_password(:delpass) and mseq = :mseq";
+		"delete from MemoBean where memopass = old_password(:delpass) and mseq = :mseq";
 
 	public void init(ServletConfig config) throws ServletException {
 		MASTER_MEMO = PropertyManager.getString("MASTER_MEMO");

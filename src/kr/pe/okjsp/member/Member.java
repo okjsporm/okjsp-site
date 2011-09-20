@@ -3,6 +3,9 @@ package kr.pe.okjsp.member;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Id;
+
 import kr.pe.okjsp.util.CommonUtil;
 
 /**
@@ -12,42 +15,53 @@ public class Member {
 	/**
 	 * @uml.property  name="id"
 	 */
+	@Id
+	@Column(name = "ID")
 	private String id;
 	/**
 	 * @uml.property  name="name"
 	 */
+	@Column(name = "NAME")
 	private String name;
 	/**
 	 * @uml.property  name="password"
 	 */
+	@Column(name = "PASSWORD")
 	private String password;
 	/**
 	 * @uml.property  name="email"
 	 */
+	@Column(name = "EMAIL")
 	private String email;
 	/**
 	 * @uml.property  name="homepage"
 	 */
+	@Column(name = "HOMEPAGE")
 	private String homepage;
 	/**
 	 * @uml.property  name="joindate"
 	 */
+	@Column(name = "JOINDATE")
 	private Date   joindate;
 	/**
 	 * @uml.property  name="profile"
 	 */
+	@Column(name = "PROFILE")
 	private String profile;
 	/**
 	 * @uml.property  name="mailing"
 	 */
+	@Column(name = "MAILING")
 	private String mailing;
 	/** 
 	 * @uml.property name="point"
 	 */
+	@Column(name = "POINT")
 	private long point;
 	/**
 	 * @uml.property  name="sid"
 	 */
+	@Column(name = "SID")
 	private long sid;
 	/**
 	 * @uml.property  name="role"

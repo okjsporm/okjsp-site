@@ -16,6 +16,7 @@
 						데이터나 스키마를 지우지는 않습니다. 
 			validate: 	처음에 도메인 객체 구성과 DB 스키마가 같은지 확인만 할 뿐 DB 스키마에 전혀 손대지 않습니다. 
 						SessionFactory 시작 시 확인을 해서	문제가 있으면 예외를 토해내고 죽습니다. 
+			* 사용하지 않아도 관계없음			
 		-->
 		<property name="show_sql">true</property>
 		<property name="format_sql">true</property>
@@ -23,9 +24,9 @@
 		<property name="connection.pool_size">1</property>
 		<property name="current_session_context_class">thread</property>
 		<!-- Mapping files will go here.... -->
-		<!-- <mapping resource="com/cubrid/hibernate/country.hbm.xml"/> -->
 		<mapping class="kr.pe.okjsp.MemoBean" />
         <mapping class="kr.pe.okjsp.BbsInfoBean" />
+        <mapping class="kr.pe.okjsp.member.Member" />
         
 	</session-factory>
 </hibernate-configuration>

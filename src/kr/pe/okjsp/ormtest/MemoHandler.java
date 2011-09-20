@@ -123,7 +123,7 @@ public class MemoHandler {
 				mb.setBcomment(CommonUtil.a2k(rs.getString   ("bcomment")));
 				mb.setWtime   (rs.getTimestamp("wtime")   );
 				mb.setIp      (rs.getString   ("ip")      );
-				mb.setSid     (rs.getLong     ("sid")     );
+				mb.setSid     (rs.getInt 	  ("sid")     );
 
 				arrayList.add(mb);
 			}

@@ -28,7 +28,7 @@ public class MemoBean {
     private String id;
     
     @Column(name = "SID")
-    private long sid;
+    private int sid;
     
     @Column(name = "WRITER")
     private String writer;
@@ -95,14 +95,14 @@ public class MemoBean {
 	/**
 	 * @return
 	 */
-	public long getSid() {
+	public int getSid() {
 		return sid;
 	}
 	
 	/**
 	 * @param sid
 	 */
-	public void setSid(long sid) {
+	public void setSid(int sid) {
 		this.sid = sid;
 	}
 	

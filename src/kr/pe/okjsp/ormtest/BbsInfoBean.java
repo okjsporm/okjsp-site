@@ -35,18 +35,18 @@ public class BbsInfoBean {
 	 * @uml.property  name="cseq"
 	 */
 	@Column(name = "CSEQ")
-	private String cseq;
+	private int cseq;
 	/**
 	 * @uml.property  name="searchCount"
 	 */
-	private int searchCount;
+//	private int searchCount;
 	
 	public BbsInfoBean() {
 	}
 	
-	BbsInfoBean(String bbs, int searchCount) {
+	BbsInfoBean(String bbs) {
 		this.bbs = bbs;
-		this.searchCount = searchCount;
+//		this.searchCount = searchCount;
 	}
 	/**
 	 * @return  bbs
@@ -60,9 +60,9 @@ public class BbsInfoBean {
 	 * @return  searchCount
 	 * @uml.property  name="searchCount"
 	 */
-	public int getSearchCount() {
-		return searchCount;
-	}
+//	public int getSearchCount() {
+//		return searchCount;
+//	}
 
 	/**
 	 * @param  string
@@ -76,15 +76,15 @@ public class BbsInfoBean {
 	 * @param  i
 	 * @uml.property  name="searchCount"
 	 */
-	public void setSearchCount(int i) {
-		searchCount = i;
-	}
+//	public void setSearchCount(int i) {
+//		searchCount = i;
+//	}
 
 	/**
 	 * @return  cseq
 	 * @uml.property  name="cseq"
 	 */
-	public String getCseq() {
+	public int getCseq() {
 		return cseq;
 	}
 
@@ -108,8 +108,8 @@ public class BbsInfoBean {
 	 * @param  string
 	 * @uml.property  name="cseq"
 	 */
-	public void setCseq(String string) {
-		cseq = string;
+	public void setCseq(int i) {
+		cseq = i;
 	}
 
 	/**

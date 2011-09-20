@@ -34,7 +34,7 @@ public class MemoDao {
      * @return result
      * @throws SQLException
      */
-    public int write(String id, long sid, String writer, String bcomment, String memopass, String ip, int seq) throws SQLException {
+    public int write(String id, int sid, String writer, String bcomment, String memopass, String ip, int seq) throws SQLException {
     	if ("null".equals(bcomment) || bcomment == null) {
     		throw new SQLException("no content by "+ip);
     	}

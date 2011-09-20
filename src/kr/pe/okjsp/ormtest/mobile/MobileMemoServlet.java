@@ -88,14 +88,14 @@ public class MobileMemoServlet extends HttpServlet {
 				memocnt = -memocnt;
 			} else {
 				// id cookie based
-				long sid = CommonUtil.getCookieLong(req, "sid");
+				int sid = (int) CommonUtil.getCookieLong(req, "sid");
 				String id = null;
 				if (sid > 0) {
 					id = CommonUtil.getCookie(req, "okid");
 				}
 				
 				if( sid == 0 ) {
-					sid = Long.parseLong( req.getParameter("sid") );
+					sid = Integer.parseInt( req.getParameter("sid") );
 					id = req.getParameter("okid");
 				}
 				

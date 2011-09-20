@@ -5,7 +5,7 @@
 	<session-factory>
 		<property name="hibernate.connection.driver_class">cubrid.jdbc.driver.CUBRIDDriver</property>
 		<property name="hibernate.dialect">org.hibernate.dialect.CUBRIDDialect</property>
-		<property name="hbm2ddl.auto">validate</property><!--create일 경우 테이블이 delete됨 -->
+		<property name="hbm2ddl.auto">validate</property>
 		<!-- .... 안 쓰거나 validate가 안전할듯..
 			create: 	Session factory가 실행될 때에 스키마를 지우고 다시 생성합니다. 
 						스키마를 생성한 다음에 classpath에서 

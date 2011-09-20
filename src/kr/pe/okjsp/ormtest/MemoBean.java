@@ -4,11 +4,10 @@ import java.sql.Timestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import kr.pe.okjsp.util.*;
+import kr.pe.okjsp.util.CommonUtil;
 
 /**
  * @author  kenu  Memo 정보를 담아두는 Bean
@@ -17,7 +16,7 @@ import kr.pe.okjsp.util.*;
 @Table(name="OKBOARD_MEMO")
 public class MemoBean {
 	
-    @Id @GeneratedValue
+    @Id
     @Column(name = "MSEQ")
     private int mseq;
     

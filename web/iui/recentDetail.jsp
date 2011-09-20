@@ -26,11 +26,13 @@
 	    	bbsInfo = new BbsInfoBean();
 	    }
 	    
-	    if (bbsInfo.getCseq() == null || "".equals(bbsInfo.getCseq()) || "twitter".equals(bbsInfo.getBbs())) {
+	    String cSeq = String.valueOf(bbsInfo.getCseq());
+	    
+	    if (cSeq == null || "".equals(cSeq) || "twitter".equals(bbsInfo.getBbs())) {
     		continue;
     	}
     	
-	    if ("2".equals(bbsInfo.getCseq())) {
+	    if ("2".equals(cSeq)) {
 	    	continue;
 	    }
 	    

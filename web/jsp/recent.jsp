@@ -142,11 +142,13 @@ aladdin_ttb_height = '183';
     	
 	    // 모바일웹 프로젝트 진행중에는 테스트 데이타인
     	// twitter 와 null 은 보여지지 않습니다.
-    	if (bbsInfo.getCseq() == null || "".equals(bbsInfo.getCseq()) || "twitter".equals(bbsInfo.getBbs())) {
+    	String cSeq = String.valueOf(bbsInfo.getCseq());
+
+	    if (cSeq == null || "".equals(cSeq) || "twitter".equals(bbsInfo.getBbs())) {
     		continue;
     	}
     	
-	    if ("2".equals(bbsInfo.getCseq())) {
+	    if ("2".equals(cSeq)) {
 	    	continue;
 	    }
 	    i++;

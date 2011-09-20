@@ -4,37 +4,49 @@
  */
 package kr.pe.okjsp;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 /**
  * @author  kenu
  */
+@Entity
+@Table(name="OKBOARD_INFO")
 public class BbsInfoBean {
 	/**
 	 * @uml.property  name="bbs"
 	 */
+	@Id
+	@Column(name = "BBSID")
 	private String bbs;
 	/**
 	 * @uml.property  name="name"
 	 */
+	@Column(name = "NAME")
 	private String name;
 	/**
 	 * @uml.property  name="header"
 	 */
+	@Column(name = "HEADER")
 	private String header;
 	/**
 	 * @uml.property  name="cseq"
 	 */
-	private String cseq;
+	@Column(name = "CSEQ")
+	private int cseq;
 	/**
 	 * @uml.property  name="searchCount"
 	 */
-	private int searchCount;
+//	private int searchCount;
 	
 	public BbsInfoBean() {
 	}
 	
 	BbsInfoBean(String bbs, int searchCount) {
 		this.bbs = bbs;
-		this.searchCount = searchCount;
+//		this.searchCount = searchCount;
 	}
 	/**
 	 * @return  bbs
@@ -49,7 +61,7 @@ public class BbsInfoBean {
 	 * @uml.property  name="searchCount"
 	 */
 	public int getSearchCount() {
-		return searchCount;
+		return 0;
 	}
 
 	/**
@@ -65,14 +77,14 @@ public class BbsInfoBean {
 	 * @uml.property  name="searchCount"
 	 */
 	public void setSearchCount(int i) {
-		searchCount = i;
+//		searchCount = i;
 	}
 
 	/**
 	 * @return  cseq
 	 * @uml.property  name="cseq"
 	 */
-	public String getCseq() {
+	public int getCseq() {
 		return cseq;
 	}
 
@@ -96,8 +108,8 @@ public class BbsInfoBean {
 	 * @param  string
 	 * @uml.property  name="cseq"
 	 */
-	public void setCseq(String string) {
-		cseq = string;
+	public void setCseq(int i) {
+		cseq = i;
 	}
 
 	/**

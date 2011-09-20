@@ -45,7 +45,7 @@ public class SiteSearch {
 		
 		DbCon dbCon = new DbCon();
 
-		LinkedList list = new LinkedList();
+		LinkedList<BbsInfoBean> list = new LinkedList<BbsInfoBean>();
 
 		Connection conn = null;
 		PreparedStatement pstmt = null;

@@ -92,12 +92,12 @@ public class PointDaoTest extends TestCase {
 		conn.setAutoCommit(false);
 		String bcomment = memoBean.getBcomment();
 		String writer = member.getId();
-		long sid = member.getSid();
+		int sid = (int) member.getSid();
 		String id = member.getId();
 		String memopass = "okpass";
 		String ip = "";
 		int seq = 0;
-		memoDao.write(conn, id, sid, writer, bcomment, memopass, ip, seq);
+		memoDao.write(id, sid, writer, bcomment, memopass, ip, seq);
 		long pointAfter = pointDao.getPoint(member.getSid());
 		assertEquals(1, pointAfter - pointBefore);
 		conn.setAutoCommit(true);

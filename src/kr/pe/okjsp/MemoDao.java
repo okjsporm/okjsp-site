@@ -1,12 +1,15 @@
 package kr.pe.okjsp;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import kr.pe.okjsp.member.PointDao;
 import kr.pe.okjsp.util.DbCon;
+import kr.pe.okjsp.util.HibernateUtil;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 public class MemoDao {
 	DbCon dbCon = new DbCon();
@@ -14,20 +17,13 @@ public class MemoDao {
 	final static String QUERY_MEMO_SEQ =
 		"select max(mseq) seq from okboard_memo";
 
-	final static String QUERY_MEMO_ADD =
-		"insert into okboard_memo (mseq, seq, id, sid, writer, bcomment, wtime, memopass, ip) values (?,?,?,?,?,?,SYSTIMESTAMP,old_password(?),?)";
+	final static String QUERY_GET_MEMO_COUNT = "select count(1) cnt from okboard_memo where seq = :seq";
 
-	final static String QUERY_MEMO_COUNT =
-        "update okboard set memo = memo + ? where seq = ?";
-	
-	final static String QUERY_GET_MEMO_COUNT = "select count(1) cnt from okboard_memo where seq = ?";
-
-    /**
+	/**
      * <pre>
      * 메모 기록
      * # 20091018 서영아빠 CUBRID로 마이그레이션 하면서 시퀀스 자동생성 방법으로 바뀜
      * </pre>
-     * @param conn
      * @param id
      * @param sid
      * @param writer
@@ -38,112 +34,110 @@ public class MemoDao {
      * @return result
      * @throws SQLException
      */
-    public int write(Connection conn, String id, long sid, String writer, String bcomment, String memopass, String ip, int seq) throws SQLException {
+    public int write(String id, int sid, String writer, String bcomment, String memopass, String ip, int seq) throws SQLException {
     	if ("null".equals(bcomment) || bcomment == null) {
     		throw new SQLException("no content by "+ip);
     	}
     	int mseq = 0;
-    	PreparedStatement pstmt = null;
-    	ResultSet rs = null;
     	int memocnt = 0;
+    	
+    	Session hSession = null;
+    	Transaction hTransaction = null;
+    	MemoBean memoBean = null;
+    	
     	try {
+    		hSession = HibernateUtil.getCurrentSession();
+            hTransaction = hSession.beginTransaction();
+            
+            
 			// mseq 일련번호 가져오기
-			pstmt = conn.prepareStatement(QUERY_MEMO_SEQ);
-			rs = pstmt.executeQuery();
-			if(rs.next())
-			    mseq = rs.getInt(1);
-			mseq++;
-			rs.close();
-			pstmt.close();
+            mseq = (Integer) hSession.createQuery(QUERY_MEMO_SEQ).uniqueResult();
 
+            mseq++;
+            
 			// memo 입력
-			pstmt = conn.prepareStatement(QUERY_MEMO_ADD, PreparedStatement.RETURN_GENERATED_KEYS);
-			pstmt.setInt   (1, mseq);
-			pstmt.setInt   (2, seq);
-			pstmt.setString(3, id);
-			pstmt.setLong  (4, sid);
-			pstmt.setString(5, writer);
-			pstmt.setString(6, bcomment);
-			pstmt.setString(7, memopass);
-			pstmt.setString(8, ip);
-			memocnt = pstmt.executeUpdate();
+            memoBean = new MemoBean();
+			memoBean.setMseq(mseq);
+			memoBean.setId(id);
+			memoBean.setSid(sid);
+			memoBean.setWriter(writer);
+			memoBean.setBcomment(bcomment);
+			memoBean.setMemoPass(memopass);
+			memoBean.setIp(ip);
+			memoBean.setSeq(mseq);
 			
+			hSession.save(memoBean);
+			
+			memocnt = 1;
 			if (sid > 0) {
 				new PointDao().log(sid, 2, 1, String.valueOf(mseq));
 			}
+			
+			hTransaction.commit();
 		} catch (Exception e) {
+			hTransaction.rollback();
 			e.printStackTrace();
 		} finally {
-			dbCon.close(null, pstmt, rs);
+			HibernateUtil.closeSession();
 		}
     	return memocnt;
     }
-
+    
     /**
      * 메모 카운트
-     * @param conn
      * @param seq
-     * @param memocnt
+     * @param addMemoCount
      * @throws SQLException
      */
-    public void setCount(Connection conn, int seq, int memocnt) throws SQLException {
-    	PreparedStatement pstmt = null;
+    public void setCount(int seq, int addMemoCount) throws SQLException {
+    	Session hSession = null;
+    	Transaction hTransaction = null;
+    	int memocnt;
+    	
     	try {
-			// 메모 갯수 추가/삭제
-			pstmt = conn.prepareStatement(QUERY_MEMO_COUNT);
-			pstmt.setInt   (1, memocnt);
-			pstmt.setInt   (2, seq);
-			pstmt.executeUpdate();
-			pstmt.close();
+    		hSession = HibernateUtil.getCurrentSession();
+            hTransaction = hSession.beginTransaction();
+            
+            // 쿼리에서 count를 더해주던 방식을 하이버네이트로 변경하면서 코드에서 count를 더해주는 방식으로 변경
+    		Article loadedArticle = (Article) hSession.get( Article.class, seq);
+    		memocnt = loadedArticle.getMemo() + addMemoCount;
+    		loadedArticle.setMemo(memocnt);
+			
+    		hTransaction.commit();
 		} catch (Exception e) {
-			e.printStackTrace();
+			hTransaction.rollback();
+    		e.printStackTrace();
 		} finally {
-			try { pstmt.close(); } catch (Exception e2) {
-				e2.printStackTrace();
-			}
+			HibernateUtil.closeSession();
 		}
     }
     
     /**
-     * <pre>
-     * 메모 기록
-     * # 20091018 서영아빠 CUBRID로 마이그레이션 하면서 시퀀스 자동생성 방법으로 바뀜
-     * </pre>
-     * @param conn
-     * @param id
-     * @param sid
-     * @param writer
-     * @param bcomment
-     * @param memopass
-     * @param ip
+     * 메모 갯수
      * @param seq
-     * @return result
-     * @throws SQLException
      */
     public int getMemoCount(int seq) {
-	
-	int memocnt = 0;
-	
-	DbCon dbCon = new DbCon();
-	Connection conn = null;
-    	PreparedStatement pstmt = null;
-    	ResultSet rs = null;
-    	
+    	Session hSession = null;
+    	Transaction hTransaction = null;
+    	int memocnt = 0;
+      
     	try {
-    	    		conn = dbCon.getConnection();
-    	    		
-			// mseq 일련번호 가져오기
-			pstmt = conn.prepareStatement(QUERY_GET_MEMO_COUNT);
-			pstmt.setInt   (1, seq);
-			rs = pstmt.executeQuery();
-			if(rs.next())
-			    memocnt = rs.getInt(1);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			dbCon.close(conn, pstmt, rs);
-		}
+    		hSession = HibernateUtil.getCurrentSession();
+    		hTransaction = hSession.beginTransaction();
+            
+            Query hQuery = hSession.createQuery(QUERY_GET_MEMO_COUNT);
+            hQuery.setInteger("seq", seq);
+            
+            memocnt = (Integer) hQuery.uniqueResult();
+
+            hTransaction.commit();
+    	} catch (HibernateException e) {
+    		hTransaction.rollback();
+    		e.printStackTrace();
+    	} finally {
+    		HibernateUtil.closeSession();
+    	}
+    	
     	return memocnt;
     }
 

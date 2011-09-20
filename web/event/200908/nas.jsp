@@ -1,3 +1,4 @@
+<%@page import="java.util.List"%>
 <%@ page language="java" contentType="text/html; charset=EUC-KR"
 	pageEncoding="EUC-KR"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -64,7 +65,7 @@
 	</div>
 <div id="m" class="tablestyle">
 <%
-  ArrayList memoList = new MemoHandler().getList(seq);
+  List<MemoBean> memoList = new MemoHandler().getList(seq);
   Iterator memo = null;
   if (memoList != null) {
     memo = memoList.iterator();

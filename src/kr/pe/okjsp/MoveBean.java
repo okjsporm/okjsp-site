@@ -28,7 +28,7 @@ public class MoveBean {
 	 * @uml.property  name="newBbs"
 	 */
 	private String newBbs;
-	private long sid; // 이동 관리자 sid
+	private int sid; // 이동 관리자 sid
 	private String writer; // 이동 관리자
 	private String ip; // 이동 관리자 ip
 	private int seq; // 메모 포함 글 연번
@@ -126,8 +126,8 @@ public class MoveBean {
 			pstmt.close();
 			
 			MemoDao memoDao = new MemoDao();
-			int memocnt = memoDao.write(conn, writer, sid, writer, "MOVED FROM " + oldBbs, "okdel", ip, seq);
-			memoDao.setCount(conn, seq, memocnt);
+			int memocnt = memoDao.write(writer, sid, writer, "MOVED FROM " + oldBbs, "okdel", ip, seq);
+			memoDao.setCount(seq, memocnt);
 			
 			conn.commit();
 			

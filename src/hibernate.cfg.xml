@@ -24,8 +24,8 @@
 		<property name="current_session_context_class">thread</property>
 		<!-- Mapping files will go here.... -->
 		<!-- <mapping resource="com/cubrid/hibernate/country.hbm.xml"/> -->
-		<mapping class="kr.pe.okjsp.ormtest.MemoBean" />
-        <mapping class="kr.pe.okjsp.ormtest.BbsInfoBean" />
+		<mapping class="kr.pe.okjsp.MemoBean" />
+        <mapping class="kr.pe.okjsp.BbsInfoBean" />
         
 	</session-factory>
 </hibernate-configuration>

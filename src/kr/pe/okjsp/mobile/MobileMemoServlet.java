@@ -1,8 +1,6 @@
 package kr.pe.okjsp.mobile;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -10,19 +8,21 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import kr.pe.okjsp.MemoBean;
 import kr.pe.okjsp.MemoDao;
 import kr.pe.okjsp.util.CommonUtil;
-import kr.pe.okjsp.util.DbCon;
+import kr.pe.okjsp.util.HibernateUtil;
 import kr.pe.okjsp.util.PropertyManager;
 
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
 public class MobileMemoServlet extends HttpServlet {
-	DbCon dbCon = new DbCon();
 	private String MASTER_MEMO;
 	private static final long serialVersionUID = 3617008659201077558L;
 	final static String QUERY_MEMO_DEL =
-		"delete from okboard_memo where memopass = old_password(?) and mseq = ?";
-	final static String QUERY_MEMO_DEL2 =
-		"delete from okboard_memo where mseq = ?";
+		"delete from okboard_memo where memopass = old_password(:delpass) and mseq = :mseq";
 
 	public void init(ServletConfig config) throws ServletException {
 		MASTER_MEMO = PropertyManager.getString("MASTER_MEMO");
@@ -60,59 +60,59 @@ public class MobileMemoServlet extends HttpServlet {
 		/*
 		 * db 입력
 		 */
-		Connection conn = null;
-		PreparedStatement pstmt = null;
+        Session hSession = null;
+    	Transaction hTransaction = null;
 		try {
 			if (!"okjsp".equalsIgnoreCase(doubleCheck)) {
 				throw new Exception("plz, help us.");
 			}
 
-			conn = dbCon.getConnection();
-			conn.setAutoCommit(false);
+			hSession = HibernateUtil.getCurrentSession();
+            hTransaction = hSession.beginTransaction();
 
 			int memocnt = 0;
 			MemoDao memoDao = new MemoDao();
 			if (MASTER_MEMO.equals(delpass)) {
 				// memo 삭제
-				pstmt = conn.prepareStatement(QUERY_MEMO_DEL2);
-				pstmt.setInt(1, mseq);
-				memocnt = pstmt.executeUpdate();
-				pstmt.close();
-				memocnt = -memocnt;
+				MemoBean loadedMemo = (MemoBean) hSession.get( MemoBean.class, mseq);
+	            hSession.delete(loadedMemo);
+	            
+				memocnt = -1;
 			} else if (mseq > 0 && !"".equals(delpass)) {
 				// memo 삭제
-				pstmt = conn.prepareStatement(QUERY_MEMO_DEL);
-				pstmt.setString(1, delpass);
-				pstmt.setInt(2, mseq);
-				memocnt = pstmt.executeUpdate();
-				pstmt.close();
+				Query hQuery = hSession.createQuery(QUERY_MEMO_DEL);
+				hQuery.setString("delpass", delpass);
+				hQuery.setInteger("mseq", mseq);
+				
+				memocnt = hQuery.executeUpdate();	// return 1
 				memocnt = -memocnt;
 			} else {
 				// id cookie based
-				long sid = CommonUtil.getCookieLong(req, "sid");
+				int sid = (int) CommonUtil.getCookieLong(req, "sid");
 				String id = null;
 				if (sid > 0) {
 					id = CommonUtil.getCookie(req, "okid");
 				}
 				
 				if( sid == 0 ) {
-					sid = Long.parseLong( req.getParameter("sid") );
+					sid = Integer.parseInt( req.getParameter("sid") );
 					id = req.getParameter("okid");
 				}
 				
-				memocnt = memoDao.write(conn, id, sid, writer, bcomment,
+				memocnt = memoDao.write(id, sid, writer, bcomment,
 						memopass, ip, seq);
 				CommonUtil.setCookie(res, "memo", "true", 525600);
 			}
 
-			memoDao.setCount(conn, seq, memocnt);
-			conn.commit();
+			memoDao.setCount(seq, memocnt);
+			hTransaction.commit();
 
 			CommonUtil.setCookie(res, "okwriter", writer);
 		} catch (Exception e) {
+			hTransaction.rollback();
 			System.out.println("MemoServlet:" + e.toString());
 		} finally {
-			dbCon.close(conn, pstmt);
+			HibernateUtil.closeSession();
 		}
 
 	    res.sendRedirect("/bbs?act=MLIST&bbs="+req.getParameter("bbs"));

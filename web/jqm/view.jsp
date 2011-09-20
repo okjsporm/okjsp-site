@@ -35,7 +35,7 @@
 			</p>
 		</div>										
 	<%
-	ArrayList<MemoBean> memoList = new MemoHandler().getList(one.getSeq());
+	List<MemoBean> memoList = new MemoHandler().getList(one.getSeq());
 	Iterator memo = null;
 		if (memoList != null) {
 			memo = memoList.iterator();

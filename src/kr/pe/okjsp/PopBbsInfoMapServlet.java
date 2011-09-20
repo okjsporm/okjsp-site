@@ -10,7 +10,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServlet;
 
-import kr.pe.okjsp.ormtest.BbsInfoBean;
 import kr.pe.okjsp.util.HibernateUtil;
 
 import org.hibernate.Session;

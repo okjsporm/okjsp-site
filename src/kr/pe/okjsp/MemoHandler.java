@@ -5,20 +5,31 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import kr.pe.okjsp.util.CommonUtil;
 import kr.pe.okjsp.util.DbCon;
+import kr.pe.okjsp.util.HibernateUtil;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 /**
  * @author  kenu
  */
 public class MemoHandler {
 	DbCon dbCon = new DbCon();
-    public final static String MEMO_QUERY =
-            "select mseq, id, writer, bcomment, wtime, ip, sid from okboard_memo where seq = ? order by mseq";
+	
+	/**
+	 * 게시글(게시글 아이디 : seq)에 해당하는 메모 리스트
+	 */
+    public final static String MEMO_QUERY = 
+    		"from okboard_memo m where m.seq = :seq order by m.mseq";
 
     public final static String MEMO_COUNT =
-            "select count(mseq) from okboard_memo where bcomment like ?";
+            "select count(m.mseq) from okboard_memo m where bcomment like :bcomment";
 
     public final static String MEMO_RECENT_BCOMMENT =
     	"select mseq, a.id, a.writer, bcomment, a.wtime, a.seq, a.ip, a.sid from okboard_memo a, okboard b where " +
@@ -46,48 +57,34 @@ public class MemoHandler {
     	field= "";
     	keyword = "";
     }
+    
+    @SuppressWarnings("unchecked")
+	public List<MemoBean> getList(int seq) {
+    	Session hSession = null;
+    	Transaction hTransaction = null;
+    	List<MemoBean> list = new ArrayList<MemoBean>();
+      
+    	try {
+    		hSession = HibernateUtil.getCurrentSession();
+    		hTransaction = hSession.beginTransaction();
+            
+            Query hQuery = hSession.createQuery(MEMO_QUERY);
+            hQuery.setInteger("seq", seq);
+            
+            list = hQuery.list();
 
-    /**
-	 * Method getList.
-	 * @param seq
-	 * @return ArrayList
-	 * @throws SQLException
-	 */
-	public ArrayList<MemoBean> getList(int seq) {
-		Connection pconn = null;
-		ArrayList<MemoBean> arrayList = new ArrayList<MemoBean>();
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try {
-			pconn = dbCon.getConnection();
-			pstmt = pconn.prepareStatement(MEMO_QUERY);
-			pstmt.setInt(1, seq);
-			rs = pstmt.executeQuery();
-			MemoBean mb = null;
+            hTransaction.commit();
+    	} catch (HibernateException e) {
+    		hTransaction.rollback();
+    		e.printStackTrace();
+    	} finally {
+    		// 세션 닫기
+    		HibernateUtil.closeSession();
+    	}
+    	
+    	return list;
+    }
 
-			while (rs.next()) {
-				mb = new MemoBean();
-				mb.setSeq(seq);
-				mb.setMseq(rs.getInt(1));
-				mb.setId(rs.getString(2));
-				mb.setWriter(CommonUtil.a2k(rs.getString(3)));
-				mb.setBcomment(CommonUtil.a2k(rs.getString(4)));
-				mb.setWtime(rs.getTimestamp(5));
-				mb.setIp(rs.getString(6));
-				mb.setSid(rs.getLong(7));
-
-				arrayList.add(mb);
-			}
-			rs.close();
-			pstmt.close();
-		} catch (Exception e) {
-			System.out.println(e.toString());
-		} finally {
-			dbCon.close(pconn, pstmt, rs);
-		}
-
-		return arrayList;
-	}
 
     /**
 	 * Method getRecent.
@@ -126,7 +123,7 @@ public class MemoHandler {
 				mb.setBcomment(CommonUtil.a2k(rs.getString   ("bcomment")));
 				mb.setWtime   (rs.getTimestamp("wtime")   );
 				mb.setIp      (rs.getString   ("ip")      );
-				mb.setSid     (rs.getLong     ("sid")     );
+				mb.setSid     (rs.getInt 	  ("sid")     );
 
 				arrayList.add(mb);
 			}
@@ -148,29 +145,29 @@ public class MemoHandler {
      * @return int
      */
     public int getCount() throws SQLException {
+    	Session hSession = null;
+    	Transaction hTransaction = null;
     	int cnt = 0;
-		Connection pconn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		try {
+      
+    	try {
+    		hSession = HibernateUtil.getCurrentSession();
+    		hTransaction = hSession.beginTransaction();
+            
+            Query hQuery = hSession.createQuery(MEMO_COUNT);
+            hQuery.setString("bcomment", "%"+keyword+"%");
+            
+            cnt = (Integer) hQuery.uniqueResult();
 
-			pconn = dbCon.getConnection();
-			pstmt = pconn.prepareStatement(MEMO_COUNT);
-			pstmt.setString(1,"%"+keyword+"%");
-			rs = pstmt.executeQuery();
-
-			if(rs.next()) {
-				cnt = rs.getInt(1);
-			}
-			rs.close();
-			pstmt.close();
-		} catch(Exception e) {
-			System.out.println(e.toString());
-		} finally {
-			dbCon.close(pconn, pstmt, rs);
-		}
-
-        return cnt;
+            hTransaction.commit();
+    	} catch (HibernateException e) {
+    		hTransaction.rollback();
+    		e.printStackTrace();
+    	} finally {
+    		// 세션 닫기
+    		HibernateUtil.closeSession();
+    	}
+    	
+    	return cnt;
     }
 
 	/**

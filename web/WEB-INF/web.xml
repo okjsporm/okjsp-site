@@ -43,7 +43,7 @@
 	</servlet>
 	<servlet>
 		<servlet-name>okboardmemo</servlet-name>
-		<servlet-class>kr.pe.okjsp.ormtest.MemoServlet</servlet-class>
+		<servlet-class>kr.pe.okjsp.MemoServlet</servlet-class>
 	</servlet>
 	<servlet>
 		<servlet-name>okboardbookmark</servlet-name>
@@ -95,7 +95,7 @@
 	</servlet>
 	<servlet>
 		<servlet-name>okboardmemoaddmobile</servlet-name>
-		<servlet-class>kr.pe.okjsp.ormtest.mobile.MobileMemoServlet</servlet-class>
+		<servlet-class>kr.pe.okjsp.mobile.MobileMemoServlet</servlet-class>
 	</servlet>
 	<!--===========================mobile_END=========================  -->
 	<servlet-mapping>

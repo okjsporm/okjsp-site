@@ -330,7 +330,7 @@ public class MemberHandler {
 
 			if (member.getSid() > 0) {
 				// 로그인을 통과한 경우 해당 role 을 불러온다.
-				List<String> role = new ArrayList<String>();
+				List<String> role = new ArrayList<String>();//
 
 				pstmt = pconn.prepareStatement(QUERY_ROLE);
 				pstmt.setString(1,member.getId());

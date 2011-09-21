@@ -87,7 +87,7 @@ public class Member {
 	@ElementCollection
 	@CollectionTable(name="OKROLE", joinColumns=@JoinColumn(name="ID"))
 	@Column(name="ROLE")
-	private List<String>   role;
+	private List<String>   role;//
 	
 	
 	public Member() {}

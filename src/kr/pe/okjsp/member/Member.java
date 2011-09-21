@@ -1,74 +1,95 @@
 package kr.pe.okjsp.member;
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Table;
 
 import kr.pe.okjsp.util.CommonUtil;
 
 /**
  * @author  kenu
  */
+@Entity
+@Table(name="OKMEMBER")
 public class Member {
+	
 	/**
 	 * @uml.property  name="id"
 	 */
 	@Id
 	@Column(name = "ID")
 	private String id;
+	
 	/**
 	 * @uml.property  name="name"
 	 */
 	@Column(name = "NAME")
 	private String name;
+	
 	/**
 	 * @uml.property  name="password"
 	 */
 	@Column(name = "PASSWORD")
 	private String password;
+	
 	/**
 	 * @uml.property  name="email"
 	 */
 	@Column(name = "EMAIL")
 	private String email;
+	
 	/**
 	 * @uml.property  name="homepage"
 	 */
 	@Column(name = "HOMEPAGE")
 	private String homepage;
+	
 	/**
 	 * @uml.property  name="joindate"
 	 */
 	@Column(name = "JOINDATE")
 	private Date   joindate;
+	
 	/**
 	 * @uml.property  name="profile"
 	 */
-	@Column(name = "PROFILE")
+	@Column(name = "PROFILE", columnDefinition="char")
 	private String profile;
+	
 	/**
 	 * @uml.property  name="mailing"
 	 */
-	@Column(name = "MAILING")
+	@Column(name = "MAILING", columnDefinition="char")
+	
 	private String mailing;
 	/** 
 	 * @uml.property name="point"
 	 */
-	@Column(name = "POINT")
+	@Column(name = "POINT", columnDefinition="integer")
 	private long point;
+	
 	/**
 	 * @uml.property  name="sid"
 	 */
-	@Column(name = "SID")
+	@Column(name = "SID", columnDefinition="integer")
 	private long sid;
+	
 	/**
 	 * @uml.property  name="role"
 	 */
-	private ArrayList<String>   role;
+	@ElementCollection
+	@CollectionTable(name="OKROLE", joinColumns=@JoinColumn(name="ID"))
+	@Column(name="ROLE")
+	private List<String>   role;
 	
-
+	
 	public Member() {}
 
 // setters
@@ -92,7 +113,7 @@ public class Member {
 	 * @param role
 	 * @uml.property  name="role"
 	 */
-	public void setRole(ArrayList<String> role) {
+	public void setRole(List<String> role) {
 		this.role = role;
 	}
 
@@ -156,7 +177,7 @@ public class Member {
 	 * @return
 	 * @uml.property  name="role"
 	 */
-	public ArrayList<String> getRole() {
+	public List<String> getRole() {
 		return this.role;
 	}
 

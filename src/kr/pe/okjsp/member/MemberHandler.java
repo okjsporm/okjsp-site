@@ -1,12 +1,21 @@
 package kr.pe.okjsp.member;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import kr.pe.okjsp.Navigation;
 import kr.pe.okjsp.util.DbCon;
+import kr.pe.okjsp.util.HibernateUtil;
 import kr.pe.okjsp.util.MailUtil;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 /**
  * 회원 정보를 처리하는 클래스입니다.
@@ -20,7 +29,8 @@ public class MemberHandler {
 	private int count;
 
 	static final String QUERY_EXISTS
-		= "select count(id) from okmember where lower(id)=lower(?)";
+		//= "select count(id) from okmember where lower(id)=lower(?)";
+		= "select count(m.id) from Member m where lower(id)=lower(?)";
 	static final String QUERY_EMAIL_EXISTS
 		= "select count(email) from okmember where lower(email)=lower(?)";
 	static final String QUERY_MAX_SID
@@ -56,29 +66,26 @@ public class MemberHandler {
 		boolean b_id_exist = true; // default true;
 
 		if (id==null) return true;
-
-		Connection pconn = dbCon.getConnection();
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-
-
-		try{
-			pstmt = pconn.prepareStatement(QUERY_EXISTS);
-			pstmt.setString(1,id);
-
-			rs = pstmt.executeQuery();
-			if(rs.next()) {
-				int cnt = rs.getInt(1);
-				if (cnt == 0) b_id_exist = false;
-			}
-			rs.close();
-			pstmt.close();
-		}catch(Exception e){
+		
+		Session session = HibernateUtil.getCurrentSession();
+		Transaction tx = session.beginTransaction();
+		try {
+			Query query = session
+					.createQuery(QUERY_EXISTS)
+					.setString(0, id);
+			
+			int cnt = (Integer)query.uniqueResult();
+			if (cnt == 0) b_id_exist = false;
+			
+			tx.commit();
+			System.out.println("[Commit Log] "+this.getClass().getCanonicalName());
+		} catch (Exception e) {
+			tx.rollback();
+			e.printStackTrace();
 			System.out.println("Member Handler isIdExist err:"+e.getMessage());
 		} finally {
-			dbCon.close(pconn, pstmt, rs);
-		} // end try catch
-
+			HibernateUtil.closeSession();
+		}
 		return b_id_exist;
 	}
 
@@ -323,7 +330,7 @@ public class MemberHandler {
 
 			if (member.getSid() > 0) {
 				// 로그인을 통과한 경우 해당 role 을 불러온다.
-				ArrayList<String> role = new ArrayList<String>();
+				List<String> role = new ArrayList<String>();
 
 				pstmt = pconn.prepareStatement(QUERY_ROLE);
 				pstmt.setString(1,member.getId());

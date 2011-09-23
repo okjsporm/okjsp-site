@@ -276,4 +276,12 @@ public class Member {
 		this.sid = sid;
 	}
 
+	@Override
+	public String toString() {
+		return "Member [id=" + id + ", name=" + name + ", password=" + password
+				+ ", email=" + email + ", homepage=" + homepage + ", joindate="
+				+ joindate + ", profile=" + profile + ", mailing=" + mailing
+				+ ", point=" + point + ", sid=" + sid + ", role=" + role + "]";
+	}
+
 }

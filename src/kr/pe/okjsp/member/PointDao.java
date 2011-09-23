@@ -1,11 +1,19 @@
 package kr.pe.okjsp.member;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
+
+import javax.persistence.UniqueConstraint;
 
 import kr.pe.okjsp.util.DbCon;
+import kr.pe.okjsp.util.HibernateUtil;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 public class PointDao {
 
@@ -13,9 +21,11 @@ public class PointDao {
 	static final String POINT_LOG 
 		= "insert into point_history (sid, code, point, tstamp, info) values (?, ?, ?, SYSTIMESTAMP, ?)";
 	static final String QUERY_ADD_POINT 
-		= "update okmember set point = point + ? where sid = ?";
+//		= "update okmember set point = point + ? where sid = ?";
+		= "update Member set point = point + ? where sid = ?";
 	static final String QUERY_GET_POINT
-		= "select point from okmember where sid = ?";
+//		= "select point from okmember where sid = ?";
+		= "select m.point from Member m where m.sid = ?";
 
 	static final String POINT_LOG_DELETE 
 		= "delete from point_history where sid = ?";
@@ -28,29 +38,45 @@ public class PointDao {
 	static final String TEST_RECORD_MEMO_DELETE 
 		= "delete from okboard_memo where sid = 3582";
 	
-	public int log(long sid, int code, int point, String info) {
+	public int log(long sid, int code, int point, String info) throws SQLException {
 	   	if (sid == 0) {
 	   		return 0;
     	}
-    	Connection conn = null;
-    	PreparedStatement pstmt = null;
+	   	Session 	session = null;
+		Transaction tx 		= null;
+		Query		query 	= null;
     	int result = 0;
     	
     	try {
-    		conn = dbCon.getConnection();
+    		session = HibernateUtil.getCurrentSession();
+			tx 		= session.beginTransaction();
 			// 포인트 이력 입력
-			pstmt = conn.prepareStatement(POINT_LOG);
-			pstmt.setLong  (1, sid);
-			pstmt.setString(2, Integer.toString(code));
-			pstmt.setInt   (3, point);
-			pstmt.setString(4, info);
-			result = pstmt.executeUpdate();
+			Point oPoint = new Point().setSid(sid)
+									.setCode(Integer.toString(code))
+									.setPoint(point)
+									.setTstamp(new Date())
+									.setInfo(info);
+			Serializable serializable = session.save(oPoint);
 			
-			addPoint(conn, sid, point);
+			//addPoint(null, sid, point);
+			
+			
+			query 	= session
+					.createQuery(QUERY_ADD_POINT)
+					.setLong(0,point)
+					.setLong(1,sid);
+			result = query.executeUpdate();
+			result = serializable!=null && serializable.toString()!=""
+					&& result>0?1:0;
+			
+			tx.commit();
+			System.out.println("It's commited! result: " + result);
 		} catch (Exception e) {
+			tx.rollback();
 			e.printStackTrace();
+			throw new SQLException("PointHistory log err:"+e.toString());
 		} finally {
-			dbCon.close(conn, pstmt);
+			HibernateUtil.closeSession();
 		}
     	return result;
 		
@@ -63,16 +89,35 @@ public class PointDao {
 	 * @param point
 	 * @return update row count
 	 * @throws SQLException
+	 * @update hibernate로 교체하면서 트랜젝션 관련 문제로 log메서드 내 구현으로 대체함
 	 */
+	@SuppressWarnings("unused")
 	private int addPoint(Connection pconn, long sid, long point) throws SQLException {
-
-		PreparedStatement pstmt = pconn.prepareStatement(QUERY_ADD_POINT);
-		pstmt.setLong(1, point);
-		pstmt.setLong(2, sid);
-		int result = pstmt.executeUpdate();
-
-		dbCon.close(null, pstmt);
+		Session 	session = null;
+		Transaction tx 		= null;
+		Query 		query 	= null;
 		
+		int result = 0;
+
+		try{
+			session = HibernateUtil.getCurrentSession();
+			tx 		= session.beginTransaction();
+			query 	= session
+					.createQuery(QUERY_ADD_POINT)
+					.setLong(0,point)
+					.setLong(1,sid);
+
+			result = query.executeUpdate();
+
+			tx.commit();
+			System.out.println("It's commited! ");
+		} catch (Exception e) {
+			tx.rollback();
+			e.printStackTrace();
+			throw new SQLException("PointHistory addPoint err:"+e.toString());
+		} finally {
+			HibernateUtil.closeSession();
+		}
 		return result;
 	}
 
@@ -84,26 +129,33 @@ public class PointDao {
 	 * @throws SQLException
 	 */
 	public long getPoint(long sid) throws SQLException {
-		Connection pconn = dbCon.getConnection();
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
+		Session 	session = null;
+		Transaction tx 		= null;
+		Query 		query 	= null;
 		long point = 0;
 
 		try{
-			pstmt = pconn.prepareStatement(QUERY_GET_POINT);
-			pstmt.setLong(1, sid);
+			session = HibernateUtil.getCurrentSession();
+			tx 		= session.beginTransaction();
+			query 	= session
+					.createQuery(QUERY_GET_POINT)
+					.setLong(0, sid);	
 
-			rs = pstmt.executeQuery();
-			if(rs.next()) {
-				point = rs.getLong(1);
+			if((Long)query.uniqueResult()!=null
+					&&(Long)query.uniqueResult()>0){
+				point = (Long)query.uniqueResult();
 			}
-		}catch(Exception e){
+			
+			tx.commit();
+			System.out.println("It's commited! point: " + point);
+		} catch (Exception e) {
+			tx.rollback();
+			e.printStackTrace();
 			System.out.println("PointDao getPoint err:"+e);
 		} finally {
-			dbCon.close(pconn, pstmt, rs);
+			HibernateUtil.closeSession();
 		} // end try catch
 		return point;
-		
 	}
 
 	/**

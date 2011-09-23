@@ -21,13 +21,17 @@
 		<property name="show_sql">true</property>
 		<property name="format_sql">true</property>
 		<!-- JDBC connection pool (use the built-in) -->
-		<property name="connection.pool_size">1</property>
+		<property name="connection.pool_size">3</property>
+		<property name=""></property>
 		<property name="current_session_context_class">thread</property>
+		<property name="connection.autocommit">false</property>
+		
 		<!-- Mapping files will go here.... -->
 		<mapping class="kr.pe.okjsp.MemoBean" />
         <mapping class="kr.pe.okjsp.BbsInfoBean" />
         <mapping class="kr.pe.okjsp.member.Member" />
         <mapping class="kr.pe.okjsp.member.Role" />
+        <mapping class="kr.pe.okjsp.member.Point" />
         
 	</session-factory>
 </hibernate-configuration>

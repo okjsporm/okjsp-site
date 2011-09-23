@@ -59,7 +59,8 @@ public class MemberHandler {
 //		= "update okmember set profile = 'Y' where sid = ?";
 		= "update Member set profile = 'Y' where sid = ?";
 	static final String QUERY_DELETE
-		= "delete from okmember where id = ? and \"password\" = old_password(?)";
+//		= "delete from okmember where id = ? and \"password\" = old_password(?)";
+		= "delete from Member where id = ? and password = old_password(?)";
 	static final String QUERY_MAILING_STATUS//메서드에서 사용하고 있지만 메서드 자체가 사용되지 않는 상태이므로 작업하지 않음
 		= "select mailing from okmember where lower(email) = lower(?)";
 	static final String QUERY_MAILING
@@ -176,24 +177,30 @@ public class MemberHandler {
 	 * @return
 	 */
 	private int deleteMember(Member member) throws SQLException {
-		Connection pconn = dbCon.getConnection();
-		PreparedStatement pstmt = null;
+		Session 	session = null;
+		Transaction tx 		= null;
+		Query		query 	= null;
 
 		int result_cnt = 0;
 
 		try{
-			pstmt = pconn.prepareStatement(QUERY_DELETE);
-			pstmt.setString(1,member.getId());
-			pstmt.setString(2,member.getPassword());
+			session = HibernateUtil.getCurrentSession();
+			tx 		= session.beginTransaction();
+			query 	= session
+					.createQuery(QUERY_DELETE)
+					.setString(0,member.getId())
+					.setString(1,member.getPassword());
 
-			result_cnt = pstmt.executeUpdate();
+			result_cnt = query.executeUpdate();
 
-			pstmt.close();
-
+			tx.commit();
+			System.out.println("It's commited!");
 		}catch(Exception e){
+			tx.rollback();
+			e.printStackTrace();
 			throw new SQLException("Delete Info err:"+e.toString());
 		} finally {
-			dbCon.close(pconn, pstmt);
+			HibernateUtil.closeSession();
 		} // end try catch
 
 		return result_cnt;
@@ -344,24 +351,28 @@ public class MemberHandler {
 				throw new SQLException("비밀번호가 틀립니다.");
 			}
 
-
+			
+			List<String> rolList= member.getRole();
+			
+			for (int i = 0; i < rolList.size(); i++) {
+				System.out.println("[Commit Log] role: " + rolList.get(i));
+			}
+			tx.commit();
+			//new PointDao().log(... 을 실행하고 커밋하면서 종료되기에 위로 옮김
+			//트랜젝션 관리가 제대로 안되는 것 같다...
+			
 			if (member.getSid() > 0) {
-				// 로그인을 통과한 경우 해당 role 을 불러온다.
 				new PointDao().log(member.getSid(), 1, 1, "login");
 				sts = 1;
 			} else {
 				sts = 2; // wrong password
 			}
-			tx.commit();
-			System.out.println("[Commit Log] "+this.getClass().getSimpleName()+"doLogin Succed!");
-			List<String> lista= member.getRole();
-			for (int i = 0; i < lista.size(); i++) {
-				System.out.println("[Commit Log] lista: " + lista.get(i) + " doLogin Succed!");
-			}
+			
+			System.out.println("[Commit Log] "+this.getClass().getSimpleName()+" doLogin Succed!");
 		}catch(Exception e){
 			tx.rollback();
 			e.printStackTrace();
-			throw e;
+//			throw e;
 		} finally {
 			HibernateUtil.closeSession();
 		} // end try catch

@@ -84,9 +84,9 @@ public class Member {
 	/**
 	 * @uml.property  name="role"
 	 */
-	@ElementCollection
+	@ElementCollection(targetClass=java.lang.String.class)
 	@CollectionTable(name="OKROLE", joinColumns=@JoinColumn(name="ID"))
-	@Column(name="ROLE")
+	@Column(name="\"ROLE\"")
 	private List<String>   role;//
 	
 	

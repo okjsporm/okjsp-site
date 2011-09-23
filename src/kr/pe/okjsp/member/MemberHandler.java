@@ -1,10 +1,11 @@
 package kr.pe.okjsp.member;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -26,35 +27,44 @@ public class MemberHandler {
 	/**
 	 * @uml.property  name="count"
 	 */
-	private int count;
+	private long count;
 
 	static final String QUERY_EXISTS
-		//= "select count(id) from okmember where lower(id)=lower(?)";
-		= "select count(m.id) from Member m where lower(id)=lower(?)";
+//		= "select count(id) from okmember where lower(id)=lower(?)";
+		= "select count(m.id) from Member m where lower(m.id)=lower(?)";
 	static final String QUERY_EMAIL_EXISTS
-		= "select count(email) from okmember where lower(email)=lower(?)";
+//		= "select count(email) from okmember where lower(email)=lower(?)";
+		= "select count(m.email) from Member m where lower(m.email)=lower(?)";
 	static final String QUERY_MAX_SID
-		= "select max(sid) from okmember";
-	static final String QUERY_ADD
+//		= "select max(sid) from okmember";
+		= "select max(m.sid) from Member m";
+	static final String QUERY_ADD//hibernate가 insert into TABLE (...) values(...)를 허용하지 않아서 사용하지 않음
 		= "insert into okmember (id, \"password\", name, email, homepage, joindate, mailing, sid, profile) values (?, old_password(?), ?, ?, ?, SYSTIMESTAMP, ?, ?, ?)";
-	static final String QUERY_ROLE_ADD
+	static final String QUERY_PW_UPDATE//hibernate가 insert into TABLE (...) values(...)를 허용하지 않아서 추가함
+		= "update Member set password = old_password(?) where id = ?";
+	static final String QUERY_ROLE_ADD//hibernate에서 객체이용하므로 사용하지 않음 (->session.save(objRole))
 		= "insert into okrole (id, \"role\") values (?,?)";
 	static final String QUERY_LOGIN
-		= "select * from okmember where id = ? and \"password\" = old_password(?)";
+//		= "select * from okmember where id = ? and \"password\" = old_password(?)";
+		= "from Member m where m.id = ? and m.password = old_password(?)";
 	static final String QUERY_ROLE
 		= "select \"role\" from okrole where id = ?";
 	static final String QUERY_COUNT
-		= "select count(id) from okmember";
+//		= "select count(id) from okmember";
+		= "select count(m.id) from Member m";
 	static final String QUERY_UPDATE
-		= "update okmember set \"password\" = old_password(?), name=?, email=?, homepage=?, mailing=? where id = ?";
+//		= "update okmember set \"password\" = old_password(?), name=?, email=?, homepage=?, mailing=? where id = ?";
+		= "update Member set password = old_password(?), name=?, email=?, homepage=?, mailing=? where id = ?";
 	static final String QUERY_PROFILELOG
-		= "update okmember set profile = 'Y' where sid = ?";
+//		= "update okmember set profile = 'Y' where sid = ?";
+		= "update Member set profile = 'Y' where sid = ?";
 	static final String QUERY_DELETE
 		= "delete from okmember where id = ? and \"password\" = old_password(?)";
-	static final String QUERY_MAILING_STATUS
+	static final String QUERY_MAILING_STATUS//메서드에서 사용하고 있지만 메서드 자체가 사용되지 않는 상태이므로 작업하지 않음
 		= "select mailing from okmember where lower(email) = lower(?)";
 	static final String QUERY_MAILING
-		= "update okmember set mailing='N' where lower(email) = lower(?)";
+//		= "update okmember set mailing='N' where lower(email) = lower(?)";
+		= "update Member set mailing='N' where lower(email) = lower(?)";
 
 	/**
 	 * Method isIdExist.
@@ -67,18 +77,22 @@ public class MemberHandler {
 
 		if (id==null) return true;
 		
-		Session session = HibernateUtil.getCurrentSession();
-		Transaction tx = session.beginTransaction();
+		Session 	session = null;
+		Transaction tx 		= null;
+		Query 		query 	= null;
+		
 		try {
-			Query query = session
+			session = HibernateUtil.getCurrentSession();
+			tx 		= session.beginTransaction();
+			query 	= session
 					.createQuery(QUERY_EXISTS)
 					.setString(0, id);
 			
-			int cnt = (Integer)query.uniqueResult();
+			long cnt = (Long)query.uniqueResult();
 			if (cnt == 0) b_id_exist = false;
 			
 			tx.commit();
-			System.out.println("[Commit Log] "+this.getClass().getCanonicalName());
+			System.out.println("[Commit Log] "+this.getClass().getSimpleName()+"isIdExist Succed!");
 		} catch (Exception e) {
 			tx.rollback();
 			e.printStackTrace();
@@ -101,25 +115,26 @@ public class MemberHandler {
 
 		if (email==null) return true;
 
-		Connection pconn = dbCon.getConnection();
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-
+		Session 	session = null;
+		Transaction tx 		= null;
+		Query 		query 	= null;
+		
 		try{
-			pstmt = pconn.prepareStatement(QUERY_EMAIL_EXISTS);
-			pstmt.setString(1,email);
-
-			rs = pstmt.executeQuery();
-			if(rs.next()) {
-				int cnt = rs.getInt(1);
-				if (cnt == 0) b_email_exist = false;
-			}
-			rs.close();
-			pstmt.close();
+			session = HibernateUtil.getCurrentSession();
+			tx 		= session.beginTransaction();
+			query 	= session
+					.createQuery(QUERY_EMAIL_EXISTS)
+					.setString(0, email);
+			
+			long cnt = (Long)query.uniqueResult();
+			if (cnt == 0) b_email_exist = false;
+			
+			tx.commit();
+			System.out.println("[Commit Log] "+this.getClass().getSimpleName()+"isEmailExist Succed!");
 		}catch(Exception e){
 			System.out.println("Member Handler isEmailExist err:"+e.getMessage());
 		} finally {
-			dbCon.close(pconn, pstmt, rs);
+			HibernateUtil.closeSession();
 		} // end try catch
 
 		return b_email_exist;
@@ -190,29 +205,35 @@ public class MemberHandler {
 	 * @throws SQLException
 	 */
 	private int updateMember(Member member) throws SQLException {
-		Connection pconn = dbCon.getConnection();
-		PreparedStatement pstmt = null;
+		Session 	session = null;
+		Transaction tx 		= null;
+		Query 		query 	= null;
 
 		int result_cnt = 0;
 
 		try{
-			pstmt = pconn.prepareStatement(QUERY_UPDATE);
-			pstmt.setString(1,member.getPassword());
-			pstmt.setString(2,member.getName());
-			pstmt.setString(3,member.getEmail());
-			pstmt.setString(4,member.getHomepage());
-			pstmt.setString(5,member.getMailing());
-			pstmt.setString(6,member.getId());
+			session = HibernateUtil.getCurrentSession();
+			tx 		= session.beginTransaction();
+			query 	= session
+					.createQuery(QUERY_UPDATE)
+					.setString(0,member.getPassword())
+					.setString(1,member.getName())
+					.setString(2,member.getEmail())
+					.setString(3,member.getHomepage())
+					.setString(4,member.getMailing())
+					.setString(5,member.getId());
 
-			result_cnt = pstmt.executeUpdate();
+			result_cnt = query.executeUpdate();
 
-			pstmt.close();
-
-		}catch(Exception e){
-			throw new SQLException("Modify Info err:"+e.toString());
+			tx.commit();
+			System.out.println("It's commited! ");
+		} catch (Exception e) {
+			tx.rollback();
+			e.printStackTrace();
+			throw new SQLException("Modify info err:"+e.toString());
 		} finally {
-			dbCon.close(pconn, pstmt);
-		} // end try catch
+			HibernateUtil.closeSession();
+		}
 
 		return result_cnt;
 	}
@@ -227,44 +248,44 @@ public class MemberHandler {
 		if (isEmailExist(member.getEmail()))
 			throw new SQLException("중복된 email이 있습니다.");
 
-		Connection pconn = dbCon.getConnection();
-		pconn.setAutoCommit(false);
-
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
+		Session 	session = null;
+		Transaction tx 		= null;
+		Query 		query 	= null;
 
 		int insert_cnt = 0;
 
 		try{
-			member.setPassword("vv"+new Random().nextInt(1000000));
-			pstmt = pconn.prepareStatement(QUERY_MAX_SID);
-			rs = pstmt.executeQuery();
-			if(rs.next()) {
-				member.setSid(rs.getLong(1) + 1);
-			}
-			rs.close();
-			pstmt.close();
+			session = HibernateUtil.getCurrentSession();
+			tx 		= session.beginTransaction();
+			query 	= session
+					.createQuery(QUERY_MAX_SID);
 			
-			pstmt = pconn.prepareStatement(QUERY_ADD);
-			pstmt.setString(1,member.getId());
-			pstmt.setString(2,member.getPassword());
-			pstmt.setString(3,member.getName());
-			pstmt.setString(4,member.getEmail());
-			pstmt.setString(5,member.getHomepage());
-			pstmt.setString(6,member.getMailing());
-			pstmt.setLong  (7,member.getSid());
-			pstmt.setString(8,member.getProfile());
+			member.setPassword("vv"+new Random().nextInt(1000000));
+			member.setJoindate(new Date());
+			if((Long)query.uniqueResult() > 0) {
+				member.setSid((Long)query.uniqueResult() + 1);
+			}
+			
+			Serializable serializable = session.save(member);//성공시 @ID를 리턴하는 것 같다. 실패시에 익셉션 발생
 
-			insert_cnt = pstmt.executeUpdate();
+			query = session.createQuery(QUERY_PW_UPDATE)
+					.setString(0, member.getPassword())
+					.setString(1, member.getId());
+			
+			int exeCnt = query.executeUpdate();
+			
+			
+			System.out.println("serializable.toString(): "+serializable.toString());
+			System.out.println("query.executeUpdate(): "+exeCnt);
+			
 
-			pstmt.close();
-
-			pstmt = pconn.prepareStatement(QUERY_ROLE_ADD);
-			pstmt.setString(1,member.getId());
-			pstmt.setString(2,"friend");
-
-			pstmt.executeUpdate();
-			pstmt.close();
+			Role role = new Role();
+			role.setId(member.getId());
+			role.setRole("friend");
+			session.save(role);
+			System.out.println("role.toString(): "+role.toString());
+			
+			insert_cnt = (serializable!=null && serializable.toString()!="" && exeCnt>0)?1:0;//기본로직 최대한 지킴
 			
 			String mailto = member.getEmail();
 			String subject = "[OKJSP]Confirmation Mail";
@@ -277,16 +298,16 @@ public class MemberHandler {
 			
 			ProfileUtil profileUtil = new ProfileUtil();
 			profileUtil.copyDefaultProfile(contextRoot, member.getSid());
-
-			pconn.commit();
-		}catch(Exception e){
-			pconn.rollback();
+			
+			tx.commit();
+			System.out.println("It's commited! ");
+		} catch (Exception e) {
+			tx.rollback();
+			e.printStackTrace();
 			throw new SQLException("Register err:"+e.toString());
 		} finally {
-			pconn.setAutoCommit(true);
-			dbCon.close(pconn, pstmt, rs);
-		} // end try catch
-
+			HibernateUtil.closeSession();
+		}
 		return insert_cnt;
 	}
 
@@ -300,59 +321,49 @@ public class MemberHandler {
 
 		if (member.getId()==null) return 0;
 
-		Connection pconn = dbCon.getConnection();
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-
+		Session 	session = null;
+		Transaction tx 		= null;
+		Query 		query 	= null;
+		
 		int sts = 0;
 
 		try{
-			pstmt = pconn.prepareStatement(QUERY_LOGIN);
-			pstmt.setString(1,member.getId());
-			pstmt.setString(2,member.getPassword());
-			rs = pstmt.executeQuery();
+			session = HibernateUtil.getCurrentSession();
+			tx 		= session.beginTransaction();
+			query 	= session
+					.createQuery(QUERY_LOGIN)
+					.setString(0,member.getId())
+					.setString(1,member.getPassword());
+			
+			@SuppressWarnings("unchecked")
+			List<Member> memberList = query.list(); //null은 안 온다.
 
-			if(rs.next()) {
-				member.setName    (rs.getString("name")    );
-				member.setPassword(rs.getString("password"));
-				member.setEmail   (rs.getString("email")   );
-				member.setHomepage(rs.getString("homepage"));
-				member.setJoindate(rs.getTimestamp("joindate"));
-				member.setProfile (rs.getString("profile"));
-				member.setMailing (rs.getString("mailing"));
-				member.setPoint   (rs.getLong  ("point"));
-				member.setSid     (rs.getLong  ("sid"));
+			if(memberList.size()>0 && memberList.get(0).getSid() > 0) {
+				member = memberList.get(0);
 			} else {
 				throw new SQLException("비밀번호가 틀립니다.");
 			}
 
-			pstmt.close();
 
 			if (member.getSid() > 0) {
 				// 로그인을 통과한 경우 해당 role 을 불러온다.
-				List<String> role = new ArrayList<String>();//
-
-				pstmt = pconn.prepareStatement(QUERY_ROLE);
-				pstmt.setString(1,member.getId());
-
-				rs = pstmt.executeQuery();
-
-				while(rs.next()) {
-					role.add(rs.getString(1));
-				}
-				rs.close();
-				pstmt.close();
-				member.setRole(role);
 				new PointDao().log(member.getSid(), 1, 1, "login");
 				sts = 1;
 			} else {
 				sts = 2; // wrong password
 			}
-
+			tx.commit();
+			System.out.println("[Commit Log] "+this.getClass().getSimpleName()+"doLogin Succed!");
+			List<String> lista= member.getRole();
+			for (int i = 0; i < lista.size(); i++) {
+				System.out.println("[Commit Log] lista: " + lista.get(i) + " doLogin Succed!");
+			}
 		}catch(Exception e){
+			tx.rollback();
+			e.printStackTrace();
 			throw e;
 		} finally {
-			dbCon.close(pconn, pstmt, rs);
+			HibernateUtil.closeSession();
 		} // end try catch
 
 		return sts;
@@ -364,24 +375,26 @@ public class MemberHandler {
 	 * @throws SQLException
 	 * @uml.property  name="count"
 	 */
-	public int getCount() throws SQLException {
-		Connection pconn = dbCon.getConnection();
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-
-		try{
-			pstmt = pconn.prepareStatement(QUERY_COUNT);
-
-			rs = pstmt.executeQuery();
-			if(rs.next()) {
-				count = rs.getInt(1);
-			}
-			rs.close();
-			pstmt.close();
-		}catch(Exception e){
+	public long getCount() throws SQLException {
+		Session 	session = null;
+		Transaction tx 		= null;
+		Query 		query 	= null;
+		try {
+			session = HibernateUtil.getCurrentSession();
+			tx 		= session.beginTransaction();
+			query 	= session
+					.createQuery(QUERY_COUNT);
+			
+			count = (Long)query.uniqueResult();
+			
+			tx.commit();
+			System.out.println("[Commit Log] "+this.getClass().getSimpleName()+"getCount Succed!");
+		} catch (Exception e) {
+			tx.rollback();
+			e.printStackTrace();
 			System.out.println("getCount err:"+e.toString());
 		} finally {
-			dbCon.close(pconn, pstmt, rs);
+			HibernateUtil.closeSession();
 		} // end try catch
 
 		return count;
@@ -393,19 +406,28 @@ public class MemberHandler {
 	 * @throws SQLException
 	 */
 	public void profileLog(long sid) throws SQLException {
-		Connection pconn = dbCon.getConnection();
-		PreparedStatement pstmt = null;
+		Session 	session = null;
+		Transaction tx 		= null;
+		Query 		query 	= null;
 
 		try{
-			pstmt = pconn.prepareStatement(QUERY_PROFILELOG);
-			pstmt.setLong(1, sid);
-			pstmt.executeUpdate();
-
-			pstmt.close();
-		} catch(Exception e){
+			session = HibernateUtil.getCurrentSession();
+			tx 		= session.beginTransaction();
+			query 	= session
+					.createQuery(QUERY_PROFILELOG)
+					.setLong(0, sid);
+			
+			query.executeUpdate();
+			
+			tx.commit();
+			System.out.println("It's commited! ");
+		} catch (Exception e) {
+			tx.rollback();
+			e.printStackTrace();
+			throw new SQLException("profileLog err:"+e.toString());
 		} finally {
-			dbCon.close(pconn, pstmt);
-		} // end try catch
+			HibernateUtil.closeSession();
+		}
 
 	}
 	/**
@@ -414,24 +436,32 @@ public class MemberHandler {
 	 * @throws SQLException
 	 */
 	public String reject(String email) throws SQLException {
-		Connection pconn = dbCon.getConnection();
-		PreparedStatement pstmt = null;
+		Session 	session = null;
+		Transaction tx 		= null;
+		Query 		query 	= null;
 		int result = 0;
 		
 		if (!isEmailExist(email)) {
 			return "없는 메일 주소입니다.";
 		}
-		
+
 		try{
-			pstmt = pconn.prepareStatement(QUERY_MAILING);
-			pstmt.setString(1, email);
-			result = pstmt.executeUpdate();
+			session = HibernateUtil.getCurrentSession();
+			tx 		= session.beginTransaction();
+			query 	= session
+					.createQuery(QUERY_MAILING)
+					.setString(0, email);
 			
-			pstmt.close();
-		} catch(Exception e){
-			System.out.println(e.toString());
+			result = query.executeUpdate();
+			
+			tx.commit();
+			System.out.println("It's commited! ");
+		} catch (Exception e) {
+			tx.rollback();
+			e.printStackTrace();
+			throw new SQLException("reject err:"+e.toString());
 		} finally {
-			dbCon.close(pconn, pstmt);
+			HibernateUtil.closeSession();
 		} // end try catch
 		
 		if (result == 1) {

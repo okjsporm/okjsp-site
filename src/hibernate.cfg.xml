@@ -27,6 +27,7 @@
 		<mapping class="kr.pe.okjsp.MemoBean" />
         <mapping class="kr.pe.okjsp.BbsInfoBean" />
         <mapping class="kr.pe.okjsp.member.Member" />
+        <mapping class="kr.pe.okjsp.member.Role" />
         
 	</session-factory>
 </hibernate-configuration>

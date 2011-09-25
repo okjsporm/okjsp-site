@@ -11,6 +11,19 @@ import kr.pe.okjsp.member.PointDao;
 import kr.pe.okjsp.util.CommonUtil;
 import kr.pe.okjsp.util.DbCon;
 
+/*2011 9 26 창우 추가
+ * 하이버네이트 ORM 추가
+ * */
+import kr.pe.okjsp.util.HibernateUtil;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+/*2011 9 26 창우 추가*/
+
+
+
 public class ArticleDao {
 	DbCon dbCon = new DbCon();
 

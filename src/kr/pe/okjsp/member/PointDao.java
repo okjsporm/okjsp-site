@@ -44,30 +44,12 @@ public class PointDao {
     	}
 	   	Session 	session = null;
 		Transaction tx 		= null;
-		Query		query 	= null;
     	int result = 0;
     	
     	try {
     		session = HibernateUtil.getCurrentSession();
 			tx 		= session.beginTransaction();
-			// 포인트 이력 입력
-			Point oPoint = new Point().setSid(sid)
-									.setCode(Integer.toString(code))
-									.setPoint(point)
-									.setTstamp(new Date())
-									.setInfo(info);
-			Serializable serializable = session.save(oPoint);
-			
-			//addPoint(null, sid, point);
-			
-			
-			query 	= session
-					.createQuery(QUERY_ADD_POINT)
-					.setLong(0,point)
-					.setLong(1,sid);
-			result = query.executeUpdate();
-			result = serializable!=null && serializable.toString()!=""
-					&& result>0?1:0;
+			result = log(session, sid, code, point, info);
 			
 			tx.commit();
 			System.out.println("It's commited! result: " + result);
@@ -80,6 +62,27 @@ public class PointDao {
 		}
     	return result;
 		
+	}
+
+	int log(Session session, long sid, int code, int point, String info) {
+		Query query;
+		int result;
+		// 포인트 이력 입력
+		Point oPoint = new Point().setSid(sid)
+								.setCode(Integer.toString(code))
+								.setPoint(point)
+								.setTstamp(new Date())
+								.setInfo(info);
+		Serializable serializable = session.save(oPoint);
+		
+		query 	= session
+				.createQuery(QUERY_ADD_POINT)
+				.setLong(0,point)
+				.setLong(1,sid);
+		result = query.executeUpdate();
+		result = serializable!=null && serializable.toString()!=""
+				&& result>0?1:0;
+		return result;
 	}
 	
 	/**

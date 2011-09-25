@@ -357,17 +357,14 @@ public class MemberHandler {
 			for (int i = 0; i < rolList.size(); i++) {
 				System.out.println("[Commit Log] role: " + rolList.get(i));
 			}
-			tx.commit();
-			//new PointDao().log(... 을 실행하고 커밋하면서 종료되기에 위로 옮김
-			//트랜젝션 관리가 제대로 안되는 것 같다...
 			
 			if (member.getSid() > 0) {
-				new PointDao().log(member.getSid(), 1, 1, "login");
+				new PointDao().log(session, member.getSid(), 1, 1, "login");
 				sts = 1;
 			} else {
 				sts = 2; // wrong password
 			}
-			
+			tx.commit();
 			System.out.println("[Commit Log] "+this.getClass().getSimpleName()+" doLogin Succed!");
 		}catch(Exception e){
 			tx.rollback();

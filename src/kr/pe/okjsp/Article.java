@@ -19,7 +19,7 @@ public class Article {
 	 * @uml.property  name="seq"
 	 */
 	@Id
-    @Column(name = "MSEQ")
+    @Column(name = "SEQ")
 	private int seq;
 	/**
 	 * @uml.property  name="ref"

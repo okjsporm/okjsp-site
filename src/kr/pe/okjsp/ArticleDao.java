@@ -133,6 +133,7 @@ public class ArticleDao {
 //		}
 //	
 //		return article;
+		
 		Session hSession = null;
     	Transaction hTransaction = null;
     	Article article = null;
@@ -141,10 +142,10 @@ public class ArticleDao {
     		hSession = HibernateUtil.getCurrentSession();
             hTransaction = hSession.beginTransaction();
             
-            
 			// 일련번호로 데이타 읽어오
-            article = (Article) hSession.load(Article.class, seq);			
-			
+            System.out.println("seq = "+seq);
+            article = (Article) hSession.load(Article.class, seq);
+//            getHibernateTemplate().initialize(article);
 			
 			hTransaction.commit();
 		} catch (Exception e) {

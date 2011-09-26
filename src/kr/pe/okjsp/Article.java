@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+
 import kr.pe.okjsp.util.*;
 
 /**
@@ -19,7 +20,7 @@ public class Article {
 	 * @uml.property  name="seq"
 	 */
 	@Id
-    @Column(name = "SEQ")
+    @Column(name = "SEQ", columnDefinition="INTEGER")
 	private int seq;
 	/**
 	 * @uml.property  name="ref"
@@ -55,7 +56,7 @@ public class Article {
 	 * @uml.property  name="id"
 	 */
 //	@Column(name = "ID")
-//	private String id;
+	private String id;
 	/**
 	 * @uml.property  name="sid"
 	 */
@@ -539,6 +540,7 @@ public class Article {
 	 * @uml.property  name="sid"
 	 */
 	public void setSid(long sid) {
+		this.id = String.valueOf(sid);
 		this.sid = String.valueOf(sid);
 	}
 

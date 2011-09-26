@@ -29,17 +29,17 @@ public class Article {
 	/**
 	 * @uml.property  name="step"
 	 */
-	@Column(name = "STEP")
+	@Column(name = "STEP", columnDefinition="SMALLINT")
 	private int step;
 	/**
 	 * @uml.property  name="lev"
 	 */
-	@Column(name = "LEV")
+	@Column(name = "LEV", columnDefinition="SMALLINT")
 	private int lev;
 	/**
 	 * @uml.property  name="read"
 	 */
-	@Column(name = "READ")
+	@Column(name = "HIT")
 	private int read;
 	/**
 	 * @uml.property  name="memo"
@@ -49,7 +49,7 @@ public class Article {
 	/**
 	 * @uml.property  name="bbs"
 	 */
-	@Column(name = "BBS")
+	@Column(name = "BBSID")
 	private String bbs;
 	/**
 	 * @uml.property  name="id"
@@ -59,8 +59,8 @@ public class Article {
 	/**
 	 * @uml.property  name="sid"
 	 */
-	@Column(name = "SID")
-	private long sid;
+//	@Column(name = "SID")
+//	private long sid;
 	/**
 	 * @uml.property  name="writer"
 	 */
@@ -94,7 +94,7 @@ public class Article {
 	/**
 	 * @uml.property  name="html"
 	 */
-	@Column(name = "HTML")
+	@Column(name = "HTML", columnDefinition="char")
 	private String html;
 	/**
 	 * @uml.property  name="ip"
@@ -104,12 +104,12 @@ public class Article {
 	/**
 	 * @uml.property  name="when"
 	 */
-	@Column(name = "WHEN")
+	@Column(name = "WTIME")
 	private Timestamp when;
 	/**
 	 * @uml.property  name="ccl_id"
 	 */
-	@Column(name = "CCL_ID")
+	@Column(name = "CCL_ID", columnDefinition="char")
 	private String ccl_id;
 
 	public Article() {
@@ -192,7 +192,7 @@ public class Article {
 		this.step=    step;
 		this.lev=     lev;
 		this.id    =  id;
-		this.sid   =  sid;
+//		this.sid   =  sid;
 		this.writer=  writer;
 		this.subject= subject;
 		this.content= content;
@@ -529,17 +529,17 @@ public class Article {
 	 * @return  Returns the sid.
 	 * @uml.property  name="sid"
 	 */
-	public long getSid() {
-		return sid;
-	}
+//	public long getSid() {
+//		return sid;
+//	}
 
 	/**
 	 * Setter of the property <tt>sid</tt>
 	 * @param sid  The sid to set.
 	 * @uml.property  name="sid"
 	 */
-	public void setSid(long sid) {
-		this.sid = sid;
-	}
+//	public void setSid(long sid) {
+//		this.sid = sid;
+//	}
 
 }

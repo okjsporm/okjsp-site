@@ -54,13 +54,13 @@ public class Article {
 	/**
 	 * @uml.property  name="id"
 	 */
-	@Column(name = "ID")
-	private String id;
+//	@Column(name = "ID")
+//	private String id;
 	/**
 	 * @uml.property  name="sid"
 	 */
-//	@Column(name = "SID")
-//	private long sid;
+	@Column(name = "ID")
+	private String sid;
 	/**
 	 * @uml.property  name="writer"
 	 */
@@ -120,7 +120,7 @@ public class Article {
 	    read = 0;
 	    memo = 0;
 	    bbs = "";
-	    id = "";
+//	    id = "";
 	    writer = "";
 	    subject = "";
 	    content = "";
@@ -191,8 +191,8 @@ public class Article {
 		this.bbs=     bbs;
 		this.step=    step;
 		this.lev=     lev;
-		this.id    =  id;
-//		this.sid   =  sid;
+//		this.id    =  id;
+		this.sid   =  String.valueOf(sid);
 		this.writer=  writer;
 		this.subject= subject;
 		this.content= content;
@@ -513,7 +513,7 @@ public class Article {
 	 * @uml.property  name="id"
 	 */
 	public String getId() {
-		return id;
+		return sid;
 	}
 
 	/**
@@ -521,7 +521,7 @@ public class Article {
 	 * @uml.property  name="id"
 	 */
 	public void setId(String id) {
-		this.id = id;
+		this.sid = id;
 	}
 
 	/**
@@ -529,17 +529,17 @@ public class Article {
 	 * @return  Returns the sid.
 	 * @uml.property  name="sid"
 	 */
-//	public long getSid() {
-//		return sid;
-//	}
+	public long getSid() {
+		return Long.parseLong(sid);
+	}
 
 	/**
 	 * Setter of the property <tt>sid</tt>
 	 * @param sid  The sid to set.
 	 * @uml.property  name="sid"
 	 */
-//	public void setSid(long sid) {
-//		this.sid = sid;
-//	}
+	public void setSid(long sid) {
+		this.sid = String.valueOf(sid);
+	}
 
 }

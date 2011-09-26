@@ -55,13 +55,13 @@ public class Article {
 	/**
 	 * @uml.property  name="id"
 	 */
-//	@Column(name = "ID")
+	@Column(name = "ID")
 	private String id;
 	/**
 	 * @uml.property  name="sid"
 	 */
-	@Column(name = "ID")
-	private String sid;
+//	@Column(name = "SID")
+//	private String sid;
 	/**
 	 * @uml.property  name="writer"
 	 */
@@ -192,8 +192,8 @@ public class Article {
 		this.bbs=     bbs;
 		this.step=    step;
 		this.lev=     lev;
-//		this.id    =  id;
-		this.sid   =  String.valueOf(sid);
+		this.id    =  id;
+//		this.sid   =  String.valueOf(sid);
 		this.writer=  writer;
 		this.subject= subject;
 		this.content= content;
@@ -514,7 +514,7 @@ public class Article {
 	 * @uml.property  name="id"
 	 */
 	public String getId() {
-		return sid;
+		return id;
 	}
 
 	/**
@@ -522,7 +522,7 @@ public class Article {
 	 * @uml.property  name="id"
 	 */
 	public void setId(String id) {
-		this.sid = id;
+		this.id = id;
 	}
 
 	/**
@@ -531,7 +531,7 @@ public class Article {
 	 * @uml.property  name="sid"
 	 */
 	public long getSid() {
-		return Long.parseLong(sid);
+		return Long.parseLong(id);
 	}
 
 	/**
@@ -540,8 +540,8 @@ public class Article {
 	 * @uml.property  name="sid"
 	 */
 	public void setSid(long sid) {
+//		this.id = String.valueOf(sid);
 		this.id = String.valueOf(sid);
-		this.sid = String.valueOf(sid);
 	}
 
 }

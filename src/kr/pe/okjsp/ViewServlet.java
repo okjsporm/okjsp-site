@@ -65,6 +65,7 @@ public class ViewServlet extends HttpServlet {
 			conn = dbCon.getConnection();
 
 			// 게시물 가져오기
+			System.out.println("게시물 가져오기");
 			Article one = new ArticleDao().getArticle(seq, conn);
 			// email filtering
 			one.setEmail(CommonUtil.rplc(one.getEmail(), "@", "&#64;"));

@@ -54,10 +54,10 @@ public class ArticleDao {
 	
 	public static final String QUERY_ONE =
 		"select  bbsid, seq, \"ref\", step, lev, id, writer, subject, \"password\", email, hit, html, homepage, wtime, ip, memo, content, ccl_id from okboard where seq = ?";
-//	public static final String QUERY_ONE_COUNTUP =
-//		"select  bbsid, seq, \"ref\", step, lev, id, writer, subject, \"password\", email, incr(hit), html, homepage, wtime, ip, memo, content, ccl_id from okboard where seq = ?";
 	public static final String QUERY_ONE_COUNTUP =
-			"select  bbsid, seq, ref, step, lev, sid, writer, subject, password, email, incr(hit) as hit, html, homepage, wtime, ip, memo, content, ccl_id from okboard where seq = ?";
+		"select  bbsid, seq, \"ref\", step, lev, id, writer, subject, \"password\", email, incr(hit), html, homepage, wtime, ip, memo, content, ccl_id from okboard where seq = ?";
+//	public static final String QUERY_ONE_COUNTUP =
+//			"select  bbsid, seq, ref, step, lev, sid, writer, subject, password, email, incr(hit) as hit, html, homepage, wtime, ip, memo, content, ccl_id from okboard where seq = ?";
 
 	/**
 	 * 해당번호의 게시물을 불러옵니다.
@@ -99,68 +99,69 @@ public class ArticleDao {
 	 * @throws SQLException
 	 */
 	public Article getArticle(int seq, String sql, Connection conn) throws SQLException {
-//		PreparedStatement pstmt = null;
-//		ResultSet rs = null;
-//		Article article = new Article();
-//		try {
-//			pstmt = conn.prepareStatement(sql);
-//			pstmt.setInt(1,seq);
-//
-//			rs = pstmt.executeQuery();
-//			if(rs.next()) {
-//				article.setBbs(rs.getString("bbsid"));
-//				article.setSeq(rs.getInt("seq"));
-//				article.setRef(rs.getInt("ref"));
-//				article.setStep(rs.getInt("step"));
-//				article.setLev(rs.getInt("lev"));
-//				article.setId(rs.getString("id"));
-//				article.setWriter(CommonUtil.a2k(rs.getString(7)));
-//				article.setSubject(CommonUtil.a2k(rs.getString(8)));
-//				article.setPassword(rs.getString(9));
-//				article.setEmail(CommonUtil.a2k(rs.getString(10)));
-//				article.setRead(rs.getInt(11));
-//				article.setHtml(rs.getString(12));
-//				article.setHomepage(CommonUtil.a2k(rs.getString(13)));
-//				article.setWhen(rs.getTimestamp(14));
-//				article.setIp(rs.getString(15));
-//				article.setMemo(rs.getInt(16));
-//				article.setContent(CommonUtil.a2k(rs.getString(17)));
-//				article.setCcl_id(rs.getString(18));
-//			}
-//
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		} finally {
-//			dbCon.close(null, pstmt, rs);
-//		}
-//	
-//		return article;
-		
-		Session hSession = null;
-    	Transaction hTransaction = null;
-    	Article article = null;
-    	
-    	try {
-    		hSession = HibernateUtil.getCurrentSession();
-            hTransaction = hSession.beginTransaction();
-            
-			// 일련번호로 데이타 읽어오
-            System.out.println("seq = "+seq);
-//            article = (Article) hSession.load(Article.class, seq);
-//            article = (Article) hSession.get(Article.class, 175301);            
-//            getHibernateTemplate().initialize(article);
-            Query hQuery = hSession.createQuery(sql);
-            hQuery.setInteger("SEQ", seq);
-            article = (Article) hQuery.uniqueResult();
-			
-			hTransaction.commit();
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Article article = new Article();
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1,seq);
+
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				article.setBbs(rs.getString("bbsid"));
+				article.setSeq(rs.getInt("seq"));
+				article.setRef(rs.getInt("ref"));
+				article.setStep(rs.getInt("step"));
+				article.setLev(rs.getInt("lev"));
+				article.setId(rs.getString("id"));
+				article.setWriter(CommonUtil.a2k(rs.getString(7)));
+				article.setSubject(CommonUtil.a2k(rs.getString(8)));
+				article.setPassword(rs.getString(9));
+				article.setEmail(CommonUtil.a2k(rs.getString(10)));
+				article.setRead(rs.getInt(11));
+				article.setHtml(rs.getString(12));
+				article.setHomepage(CommonUtil.a2k(rs.getString(13)));
+				article.setWhen(rs.getTimestamp(14));
+				article.setIp(rs.getString(15));
+				article.setMemo(rs.getInt(16));
+				article.setContent(CommonUtil.a2k(rs.getString(17)));
+				article.setCcl_id(rs.getString(18));
+			}
+
 		} catch (Exception e) {
-			hTransaction.rollback();
 			e.printStackTrace();
 		} finally {
-			HibernateUtil.closeSession();
+			dbCon.close(null, pstmt, rs);
 		}
-    	return article;
+	
+		return article;
+		
+//		Session hSession = null;
+//    	Transaction hTransaction = null;
+//    	Article article = null;
+//    	
+//    	try {
+//    		hSession = HibernateUtil.getCurrentSession();
+//            hTransaction = hSession.beginTransaction();
+//            
+//			// 일련번호로 데이타 읽어오
+//            System.out.println("seq = "+seq);
+//            article = (Article) hSession.load(Article.class, seq);
+//            System.out.println("article = "+article.getContent());
+////            article = (Article) hSession.get(Article.class, 175301);            
+////            getHibernateTemplate().initialize(article);
+////            Query hQuery = hSession.createQuery(sql);
+////            hQuery.setInteger("SEQ", seq);
+////            article = (Article) hQuery.uniqueResult();
+//			
+//			hTransaction.commit();
+//		} catch (Exception e) {
+//			hTransaction.rollback();
+//			e.printStackTrace();
+//		} finally {
+//			HibernateUtil.closeSession();
+//		}
+//    	return article;
 	} 
 	/**
 	 * <pre>
@@ -179,7 +180,7 @@ public class ArticleDao {
 			pstmt.setString(++idx, article.getBbs());
 			pstmt.setInt   (++idx, article.getSeq());
 			pstmt.setInt   (++idx, article.getRef());
-			pstmt.setString(++idx, String.valueOf(article.getSid()));
+			pstmt.setString(++idx, String.valueOf(article.getId()));
 			pstmt.setString(++idx, article.getWriter());
 			pstmt.setString(++idx, article.getSubject());
 			pstmt.setString(++idx, article.getContent());
@@ -191,8 +192,8 @@ public class ArticleDao {
 			pstmt.setString(++idx, article.getCcl_id());
 			pstmt.executeUpdate();
 
-			if (article.getSid() > 0) {
-				new PointDao().log(article.getSid(), 2, 10, String.valueOf(article.getSeq()));
+			if (Integer.valueOf(article.getId()) > 0) {
+				new PointDao().log(Integer.valueOf(article.getId()), 2, 10, String.valueOf(article.getSeq()));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -233,7 +234,7 @@ public class ArticleDao {
 			pstmt.setInt(3, article.getRef());
 			pstmt.setInt(4, article.getStep() + 1);
 			pstmt.setInt(5, article.getLev() + 1);
-			pstmt.setString(6, String.valueOf(article.getSid()));
+			pstmt.setString(6, String.valueOf(article.getId()));
 			pstmt.setString(7, article.getWriter());
 			pstmt.setString(8, article.getSubject());
 			pstmt.setString(9, article.getContent());
@@ -244,8 +245,8 @@ public class ArticleDao {
 			pstmt.setString(14, article.getHtml());
 			pstmt.setString(15, article.getCcl_id());
 			result = pstmt.executeUpdate();
-			if (article.getSid() > 0) {
-				new PointDao().log(article.getSid(), 2, 10, String.valueOf(article.getSeq()));
+			if (Integer.valueOf(article.getId()) > 0) {
+				new PointDao().log(Integer.valueOf(article.getId()), 2, 10, String.valueOf(article.getSeq()));
 			}
 		} catch (SQLException e) {
 			System.out.println(e.toString());
@@ -438,7 +439,7 @@ public class ArticleDao {
 			conn = dbCon.getConnection();
 			
 			if ("recruit".equals(article.getBbs())) {
-				checkSpam(conn, "recruit", String.valueOf(article.getSid()));
+				checkSpam(conn, "recruit", String.valueOf(article.getId()));
 			}
 			
 			conn.setAutoCommit(false);

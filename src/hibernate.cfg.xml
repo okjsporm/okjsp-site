@@ -27,6 +27,7 @@
 		<property name="connection.autocommit">false</property>
 		
 		<!-- Mapping files will go here.... -->
+		<mapping class="kr.pe.okjsp.Article" />
 		<mapping class="kr.pe.okjsp.MemoBean" />
         <mapping class="kr.pe.okjsp.BbsInfoBean" />
         <mapping class="kr.pe.okjsp.member.Member" />

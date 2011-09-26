@@ -54,8 +54,10 @@ public class ArticleDao {
 	
 	public static final String QUERY_ONE =
 		"select  bbsid, seq, \"ref\", step, lev, id, writer, subject, \"password\", email, hit, html, homepage, wtime, ip, memo, content, ccl_id from okboard where seq = ?";
+//	public static final String QUERY_ONE_COUNTUP =
+//		"select  bbsid, seq, \"ref\", step, lev, id, writer, subject, \"password\", email, incr(hit), html, homepage, wtime, ip, memo, content, ccl_id from okboard where seq = ?";
 	public static final String QUERY_ONE_COUNTUP =
-		"select  bbsid, seq, \"ref\", step, lev, id, writer, subject, \"password\", email, incr(hit), html, homepage, wtime, ip, memo, content, ccl_id from okboard where seq = ?";
+			"select  bbsid, seq, ref, step, lev, sid, writer, subject, password, email, incr(hit) as hit, html, homepage, wtime, ip, memo, content, ccl_id from okboard where seq = ?";
 
 	/**
 	 * 해당번호의 게시물을 불러옵니다.
@@ -144,8 +146,12 @@ public class ArticleDao {
             
 			// 일련번호로 데이타 읽어오
             System.out.println("seq = "+seq);
-            article = (Article) hSession.load(Article.class, seq);
+//            article = (Article) hSession.load(Article.class, seq);
+//            article = (Article) hSession.get(Article.class, 175301);            
 //            getHibernateTemplate().initialize(article);
+            Query hQuery = hSession.createQuery(sql);
+            hQuery.setInteger("SEQ", seq);
+            article = (Article) hQuery.uniqueResult();
 			
 			hTransaction.commit();
 		} catch (Exception e) {

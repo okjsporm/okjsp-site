@@ -73,6 +73,7 @@ public class ArticleDao {
 		} finally {
 			dbCon.close(pconn, null);
 		}
+		
 	}
 	
 	/**
@@ -96,42 +97,63 @@ public class ArticleDao {
 	 * @throws SQLException
 	 */
 	public Article getArticle(int seq, String sql, Connection conn) throws SQLException {
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		Article article = new Article();
-		try {
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1,seq);
-
-			rs = pstmt.executeQuery();
-			if(rs.next()) {
-				article.setBbs(rs.getString("bbsid"));
-				article.setSeq(rs.getInt("seq"));
-				article.setRef(rs.getInt("ref"));
-				article.setStep(rs.getInt("step"));
-				article.setLev(rs.getInt("lev"));
-				article.setId(rs.getString("id"));
-				article.setWriter(CommonUtil.a2k(rs.getString(7)));
-				article.setSubject(CommonUtil.a2k(rs.getString(8)));
-				article.setPassword(rs.getString(9));
-				article.setEmail(CommonUtil.a2k(rs.getString(10)));
-				article.setRead(rs.getInt(11));
-				article.setHtml(rs.getString(12));
-				article.setHomepage(CommonUtil.a2k(rs.getString(13)));
-				article.setWhen(rs.getTimestamp(14));
-				article.setIp(rs.getString(15));
-				article.setMemo(rs.getInt(16));
-				article.setContent(CommonUtil.a2k(rs.getString(17)));
-				article.setCcl_id(rs.getString(18));
-			}
-
+//		PreparedStatement pstmt = null;
+//		ResultSet rs = null;
+//		Article article = new Article();
+//		try {
+//			pstmt = conn.prepareStatement(sql);
+//			pstmt.setInt(1,seq);
+//
+//			rs = pstmt.executeQuery();
+//			if(rs.next()) {
+//				article.setBbs(rs.getString("bbsid"));
+//				article.setSeq(rs.getInt("seq"));
+//				article.setRef(rs.getInt("ref"));
+//				article.setStep(rs.getInt("step"));
+//				article.setLev(rs.getInt("lev"));
+//				article.setId(rs.getString("id"));
+//				article.setWriter(CommonUtil.a2k(rs.getString(7)));
+//				article.setSubject(CommonUtil.a2k(rs.getString(8)));
+//				article.setPassword(rs.getString(9));
+//				article.setEmail(CommonUtil.a2k(rs.getString(10)));
+//				article.setRead(rs.getInt(11));
+//				article.setHtml(rs.getString(12));
+//				article.setHomepage(CommonUtil.a2k(rs.getString(13)));
+//				article.setWhen(rs.getTimestamp(14));
+//				article.setIp(rs.getString(15));
+//				article.setMemo(rs.getInt(16));
+//				article.setContent(CommonUtil.a2k(rs.getString(17)));
+//				article.setCcl_id(rs.getString(18));
+//			}
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		} finally {
+//			dbCon.close(null, pstmt, rs);
+//		}
+//	
+//		return article;
+		Session hSession = null;
+    	Transaction hTransaction = null;
+    	Article article = null;
+    	
+    	try {
+    		hSession = HibernateUtil.getCurrentSession();
+            hTransaction = hSession.beginTransaction();
+            
+            
+			// 일련번호로 데이타 읽어오
+            article = (Article) hSession.load(Article.class, seq);			
+			
+			
+			hTransaction.commit();
 		} catch (Exception e) {
+			hTransaction.rollback();
 			e.printStackTrace();
 		} finally {
-			dbCon.close(null, pstmt, rs);
+			HibernateUtil.closeSession();
 		}
-	
-		return article;
+    	return article;
 	} 
 	/**
 	 * <pre>

@@ -2,87 +2,114 @@ package kr.pe.okjsp;
 
 import java.sql.*;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 import kr.pe.okjsp.util.*;
 
 /**
  * @author  kenu
  */
+@Entity
+@Table(name="OKBOARD")
 public class Article {
 	/**
 	 * @uml.property  name="seq"
 	 */
+	@Id
+    @Column(name = "MSEQ")
 	private int seq;
 	/**
 	 * @uml.property  name="ref"
 	 */
+	@Column(name = "REF")
 	private int ref;
 	/**
 	 * @uml.property  name="step"
 	 */
+	@Column(name = "STEP")
 	private int step;
 	/**
 	 * @uml.property  name="lev"
 	 */
+	@Column(name = "LEV")
 	private int lev;
 	/**
 	 * @uml.property  name="read"
 	 */
+	@Column(name = "READ")
 	private int read;
 	/**
 	 * @uml.property  name="memo"
 	 */
+	@Column(name = "MEMO")
 	private int memo;
 	/**
 	 * @uml.property  name="bbs"
 	 */
+	@Column(name = "BBS")
 	private String bbs;
 	/**
 	 * @uml.property  name="id"
 	 */
+	@Column(name = "ID")
 	private String id;
 	/**
 	 * @uml.property  name="sid"
 	 */
+	@Column(name = "SID")
 	private long sid;
 	/**
 	 * @uml.property  name="writer"
 	 */
+	@Column(name = "WRITER")
 	private String writer;
 	/**
 	 * @uml.property  name="subject"
 	 */
+	@Column(name = "SUBJECT")
 	private String subject;
 	/**
 	 * @uml.property  name="content"
 	 */
+	@Column(name = "CONTENT")
 	private String content;
 	/**
 	 * @uml.property  name="password"
 	 */
+	@Column(name = "PASSWORD")
 	private String password;
 	/**
 	 * @uml.property  name="email"
 	 */
+	@Column(name = "EMAIL")
 	private String email;
 	/**
 	 * @uml.property  name="homepage"
 	 */
+	@Column(name = "HOMEPAGE")
 	private String homepage;
 	/**
 	 * @uml.property  name="html"
 	 */
+	@Column(name = "HTML")
 	private String html;
 	/**
 	 * @uml.property  name="ip"
 	 */
+	@Column(name = "IP")
 	private String ip;
 	/**
 	 * @uml.property  name="when"
 	 */
+	@Column(name = "WHEN")
 	private Timestamp when;
 	/**
 	 * @uml.property  name="ccl_id"
 	 */
+	@Column(name = "CCL_ID")
 	private String ccl_id;
 
 	public Article() {

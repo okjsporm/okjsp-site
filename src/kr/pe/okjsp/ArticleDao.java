@@ -133,6 +133,8 @@ public class ArticleDao {
 		} finally {
 			dbCon.close(null, pstmt, rs);
 		}
+		
+		System.out.println("ArticleDao getArticle");
 	
 		return article;
 		

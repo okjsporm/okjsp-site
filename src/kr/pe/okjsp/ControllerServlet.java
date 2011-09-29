@@ -48,6 +48,10 @@ public class ControllerServlet extends HttpServlet {
     	res.sendError(404,"File Not Found");
     	return;
     }
+	
+	
+	//bbs do get start
+	System.out.println("bbs do get start");
 
     decoratePage(req);
 
@@ -57,6 +61,10 @@ public class ControllerServlet extends HttpServlet {
 	String loginPath = Navigation.getPath("LOGFORM");
 	if (!isValid) {
     	res.sendRedirect(loginPath);
+    	
+    	//bbs do get loginPath
+    	System.out.println("bbs do get loginPath");
+    	
     	return;
     }
 
@@ -72,19 +80,25 @@ public class ControllerServlet extends HttpServlet {
     			"kenu".equals(member.getId()) )){
     		throw new IOException("NO RIGHT TO WRITE!!!");
     	}
+    	System.out.println("isRestricted");
     }
 	
 	if ("ADD".equals(act) || "REPLY".equals(act)) {
 		if (member == null || ("").equals(member.getId()) || member.getId() == null) {
 			res.sendRedirect(loginPath);
+			System.out.println("member == null");
 			return;
 		}
-
+		System.out.println("ADD");
 	}
 
     if ("REPLY".equals(act)){
+    	System.out.println("REPLY");
         req.setAttribute("do", "reply");
     } else if ("ADD".equals(act)){
+    	
+    	System.out.println("게시판 쓰기");
+    	
         // 게시판 쓰기로 가면서 cookie 에 있는 값을 article 객체에 넣어서
         // 한번 글쓴 이름, 이메일, 홈페이지는 계속 기억하게 한다.
         Article article = new Article();
@@ -103,6 +117,8 @@ public class ControllerServlet extends HttpServlet {
     try {
         req.getRequestDispatcher(resourceName).forward(req, res);
     } catch(Exception e) { e.printStackTrace(); }
+    
+    System.out.println("bbs do get over");
 
 
   } // end doGet()
@@ -118,6 +134,8 @@ private void decoratePage(HttpServletRequest req) {
         headerType = "HEADER";
     }
     req.setAttribute("header", events.get(headerType));
+    
+    System.out.println("decoratePage");
 }
 
 

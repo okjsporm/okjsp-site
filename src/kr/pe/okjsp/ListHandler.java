@@ -14,6 +14,17 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+/*2011 9 26 창우 추가
+ * 하이버네이트 ORM 추가
+ * */
+import kr.pe.okjsp.util.HibernateUtil;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+/*2011 9 26 창우 추가*/
+
+
 /**
  * @author kenu
  *
@@ -21,20 +32,31 @@ import net.sf.ehcache.Element;
 public class ListHandler {
 	DbCon dbCon = new DbCon();
 
+//	public static final String ARTICLE_LIST =
+//		"SELECT bbsid, seq, \"ref\", lev, subject, id, writer, hit, wtime, memo, content FROM okboard WHERE bbsid=? AND content LIKE ? ORDER BY \"ref\" DESC, step for orderby_num() between ? and ?";
 	public static final String ARTICLE_LIST =
-		"SELECT bbsid, seq, \"ref\", lev, subject, id, writer, hit, wtime, memo, content FROM okboard WHERE bbsid=? AND content LIKE ? ORDER BY \"ref\" DESC, step for orderby_num() between ? and ?";
+			"FROM Article WHERE bbs=? AND content LIKE ? ORDER BY ref DESC, step for orderby_num() between ? and ?";
 
-	public static final String ARTICLE_LIST_COUNT =
-		"SELECT COUNT(*), MAX(\"ref\") FROM okboard WHERE bbsid=? AND content LIKE ?";
+//	public static final String ARTICLE_LIST_COUNT =
+//			"SELECT COUNT(*), MAX(\"ref\") FROM okboard WHERE bbsid=? AND content LIKE ?";
+		public static final String ARTICLE_LIST_COUNT =
+		"SELECT COUNT(*), MAX(ref) FROM Article WHERE bbs=? AND content LIKE ?";
+
+//	public static final String ARTICLE_LIST_RECENT =
+//			"SELECT bbsid, seq, \"ref\", lev, subject, id, writer, hit, wtime, memo, content FROM okboard WHERE bbsid=? ORDER BY seq DESC for orderby_num() between 1 and ?";
 
 	public static final String ARTICLE_LIST_RECENT =
-		"SELECT bbsid, seq, \"ref\", lev, subject, id, writer, hit, wtime, memo, content FROM okboard WHERE bbsid=? ORDER BY seq DESC for orderby_num() between 1 and ?";
+		"SELECT bbs, seq, ref, lev, subject, id, writer, read, when, memo, content FROM Article as article WHERE article.bbs=:bbs ORDER BY article.seq DESC for orderby_num() between 1 and :num";
 
+//	public static final String ARTICLE_LIST_ALL_RECENT =
+//		"SELECT okboard.bbsid, seq, \"ref\", lev, subject, id, writer, hit, wtime, memo, content FROM okboard ORDER BY seq DESC for orderby_num() between 1 and ?";
 	public static final String ARTICLE_LIST_ALL_RECENT =
-		"SELECT okboard.bbsid, seq, \"ref\", lev, subject, id, writer, hit, wtime, memo, content FROM okboard ORDER BY seq DESC for orderby_num() between 1 and ?";
+			"SELECT bbs, seq, ref, lev, subject, id, writer, read, when, memo, content FROM Article ORDER BY seq DESC for orderby_num() between 1 and ?";
 	
+//	public static final String ARTICLE_LIST_REF =
+//		"SELECT bbsid, seq, \"ref\", lev, subject, id, writer, hit, wtime, memo, content FROM okboard WHERE bbsid=? AND \"ref\"=? ORDER BY \"ref\" DESC, step";
 	public static final String ARTICLE_LIST_REF =
-		"SELECT bbsid, seq, \"ref\", lev, subject, id, writer, hit, wtime, memo, content FROM okboard WHERE bbsid=? AND \"ref\"=? ORDER BY \"ref\" DESC, step";
+			"SELECT bbs, seq, ref, lev, subject, id, writer, read, when, memo, content FROM Article WHERE bbs=? AND ref=? ORDER BY ref DESC, step";
 
 	private String bbs;
 	private String keyfield = "content";
@@ -170,14 +192,80 @@ public class ListHandler {
 	public Collection<Article> getList(String query, ArrayList<Object> params) throws SQLException {
 		ArrayList<Article> alist = new ArrayList<Article>(pageSize);
 
-		Connection pconn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
+		System.out.println("recent list");
 
-
-		try{
-			pconn = dbCon.getConnection();
-			String queryList = null;
+//		Connection pconn = null;
+//		PreparedStatement pstmt = null;
+//		ResultSet rs = null;
+//
+//
+//		try{
+//			pconn = dbCon.getConnection();
+//			String queryList = null;
+//			int idxWhere = query.indexOf("WHERE ");
+//			if (idxWhere > 0) {
+//				String query1 = query.substring(0, idxWhere);
+//				String query2 = query.substring(idxWhere);
+//				
+//				// 게시물 목록 가져오기
+//				if (EMPTY_KEYWORD) {
+//					query2 = CommonUtil.rplc(query2,
+//							" AND content LIKE ?",
+//					"");
+//				}
+//				keyfield =  ("subject writer ip".indexOf(keyfield)==-1)
+//						? "content"
+//						: keyfield;
+//				queryList = query1 +
+//				CommonUtil.rplc(query2, "content", keyfield);
+//			} else {
+//				queryList = query;
+//			}
+//			pstmt = pconn.prepareStatement(queryList );
+//
+//			for(int i = 0; i<params.size(); i++) {
+//				pstmt.setObject(i+1,params.get(i));
+//			}
+//
+//			rs = pstmt.executeQuery();
+//			Article one = null;
+//			
+//			while(rs.next()) {
+//				one = new Article();
+//
+//				one.setBbs(rs.getString("bbsid"));
+//				one.setSeq(rs.getInt("seq"));
+//				one.setRef(rs.getInt("ref"));
+//				one.setLev(rs.getInt("lev"));
+//				one.setSubject(CommonUtil.a2k(rs.getString("subject")));
+//				one.setId(rs.getString("id"));
+//				one.setWriter(CommonUtil.a2k(rs.getString("writer")));
+//				one.setWhen(rs.getTimestamp("wtime"));
+//				one.setRead(rs.getInt("hit"));
+//				one.setMemo(rs.getInt("memo"));
+//				one.setContent(CommonUtil.a2k(rs.getString("content")));
+//				
+//				alist.add(one);
+//			}
+//		} catch(SQLException e) {
+//			System.out.println(e.toString());
+//			throw e;
+//		} finally {
+//			dbCon.close(pconn, pstmt, rs);
+//		}
+//		    
+//		
+//		return alist;
+		
+		
+		Session hSession = null;
+    	Transaction hTransaction = null;
+    	Article article = null;
+    	
+    	try {
+    		
+    		
+    		String queryList = null;
 			int idxWhere = query.indexOf("WHERE ");
 			if (idxWhere > 0) {
 				String query1 = query.substring(0, idxWhere);
@@ -197,40 +285,85 @@ public class ListHandler {
 			} else {
 				queryList = query;
 			}
-			pstmt = pconn.prepareStatement(queryList );
+//			pstmt = pconn.prepareStatement(queryList );
 
-			for(int i = 0; i<params.size(); i++) {
-				pstmt.setObject(i+1,params.get(i));
-			}
+//			for(int i = 0; i<params.size(); i++) {
+//				pstmt.setObject(i+1,params.get(i));
+//			}
 
-			rs = pstmt.executeQuery();
+//			rs = pstmt.executeQuery();
 			Article one = null;
 			
-			while(rs.next()) {
-				one = new Article();
-
-				one.setBbs(rs.getString("bbsid"));
-				one.setSeq(rs.getInt("seq"));
-				one.setRef(rs.getInt("ref"));
-				one.setLev(rs.getInt("lev"));
-				one.setSubject(CommonUtil.a2k(rs.getString("subject")));
-				one.setId(rs.getString("id"));
-				one.setWriter(CommonUtil.a2k(rs.getString("writer")));
-				one.setWhen(rs.getTimestamp("wtime"));
-				one.setRead(rs.getInt("hit"));
-				one.setMemo(rs.getInt("memo"));
-				one.setContent(CommonUtil.a2k(rs.getString("content")));
-				
-				alist.add(one);
+			hSession = HibernateUtil.getCurrentSession();
+            hTransaction = hSession.beginTransaction();
+            
+            /*
+            queryList = 
+            SELECT bbsid, seq, "ref", lev, subject, id, writer, hit, wtime, memo, content 
+            FROM okboard WHERE bbsid=? ORDER BY seq DESC for orderby_num() between 1 and ?
+            */
+			for(int i = 0; i<params.size(); i++) {
+//				pstmt.setObject(i+1,params.get(i));
+//				hQuery.setParameter("sid", params.get(i));
+				System.out.println("params = "+ params.get(i));
 			}
-		} catch(SQLException e) {
-			System.out.println(e.toString());
-			throw e;
+            System.out.println("queryList before= "+queryList);
+            
+//            Query hQuery = hSession.createQuery(queryList.replaceAll("\"", ""));
+            Query hQuery = hSession.createQuery(queryList);
+            hQuery.setParameter("sid", params.get(0));//notice
+            hQuery.setParameter("num", params.get(1));//5
+//			for(int i = 0; i<params.size(); i++) {
+////				pstmt.setObject(i+1,params.get(i));
+////				hQuery.setParameter("sid", params.get(i));
+//				System.out.println("params = "+ params.get(i));
+//				hQuery.setParameter(i, params.get(i));
+//			}
+			System.out.println("queryList after = "+queryList);
+            
+
+//            List list = hQuery.executeUpdate();
+			System.out.println("hQuery.executeUpdate(); = "+hQuery.executeUpdate());
+            
+			// 일련번호로 데이타 읽어오
+//            alist = (ArrayList<Article>) hSession.createQuery(queryList).list();
+
+//            article = (Article) hSession.load(Article.class, seq);
+//            System.out.println("article = "+article.getContent());
+//            article = (Article) hSession.get(Article.class, 175301);            
+//            getHibernateTemplate().initialize(article);
+//            Query hQuery = hSession.createQuery(sql);
+//            hQuery.setInteger("SEQ", seq);
+//            article = (Article) hQuery.uniqueResult();
+			
+            
+//			while(rs.next()) {
+//				one = new Article();
+//
+//				one.setBbs(rs.getString("bbsid"));
+//				one.setSeq(rs.getInt("seq"));
+//				one.setRef(rs.getInt("ref"));
+//				one.setLev(rs.getInt("lev"));
+//				one.setSubject(CommonUtil.a2k(rs.getString("subject")));
+//				one.setId(rs.getString("id"));
+//				one.setWriter(CommonUtil.a2k(rs.getString("writer")));
+//				one.setWhen(rs.getTimestamp("wtime"));
+//				one.setRead(rs.getInt("hit"));
+//				one.setMemo(rs.getInt("memo"));
+//				one.setContent(CommonUtil.a2k(rs.getString("content")));
+//				
+//				alist.add(one);
+//			}
+    		
+			hTransaction.commit();
+		} catch (Exception e) {
+			hTransaction.rollback();
+			e.printStackTrace();
 		} finally {
-			dbCon.close(pconn, pstmt, rs);
+			HibernateUtil.closeSession();
 		}
-		    
-		return alist;
+    	return alist;
+		
 	}
 
 	/**

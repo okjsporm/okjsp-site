@@ -13,6 +13,17 @@ import kr.pe.okjsp.util.*;
 /**
  * @author  kenu
  */
+/*
+ * okboard is not mapped 
+ * [
+ * SELECT okboard.bbsid, seq, ref, lev, subject, id, writer,
+ *  hit, wtime, memo, content 
+ *  FROM okboard ORDER BY seq DESC for orderby_num() between 1 and ?]
+ */
+/*
+SELECT bbs, seq, ref, lev, subject, id, writer, read, when, memo, content 
+FROM kr.pe.okjsp.Article ORDER BY seq DESC for orderby_num() between 1 and ?
+*/
 @Entity
 @Table(name="OKBOARD")
 public class Article {

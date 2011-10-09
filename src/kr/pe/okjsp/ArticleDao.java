@@ -11,8 +11,8 @@ import kr.pe.okjsp.member.PointDao;
 import kr.pe.okjsp.util.CommonUtil;
 import kr.pe.okjsp.util.DbCon;
 
-/*2011 9 26 Ã¢¿ì Ãß°¡
- * ÇÏÀÌ¹ö³×ÀÌÆ® ORM Ãß°¡
+/*2011 9 26 Ã¢ï¿½ï¿½ ï¿½ß°ï¿½
+ * ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ORM ï¿½ß°ï¿½
  * */
 import kr.pe.okjsp.util.HibernateUtil;
 
@@ -20,7 +20,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-/*2011 9 26 Ã¢¿ì Ãß°¡*/
+/*2011 9 26 Ã¢ï¿½ï¿½ ï¿½ß°ï¿½*/
 
 
 
@@ -52,18 +52,19 @@ public class ArticleDao {
 	public static final String QUERY_DEL_FSEQ_FILE =
 		"update okboard_file set sts=0 where fseq=?";
 	
-	public static final String QUERY_ONE =
-		"select  bbsid, seq, \"ref\", step, lev, id, writer, subject, \"password\", email, hit, html, homepage, wtime, ip, memo, content, ccl_id from okboard where seq = ?";
+	//public static final String QUERY_ONE =
+	//	"select  bbsid, seq, \"ref\", step, lev, id, writer, subject, \"password\", email, hit, html, homepage, wtime, ip, memo, content, ccl_id from okboard where seq = ?";
+
 	public static final String QUERY_ONE_COUNTUP =
 		"select  bbsid, seq, \"ref\", step, lev, id, writer, subject, \"password\", email, incr(hit), html, homepage, wtime, ip, memo, content, ccl_id from okboard where seq = ?";
 //	public static final String QUERY_ONE_COUNTUP =
 //			"select  bbsid, seq, ref, step, lev, sid, writer, subject, password, email, incr(hit) as hit, html, homepage, wtime, ip, memo, content, ccl_id from okboard where seq = ?";
 
 	/**
-	 * ÇØ´ç¹øÈ£ÀÇ °Ô½Ã¹°À» ºÒ·¯¿É´Ï´Ù.
+	 * ï¿½Ø´ï¿½ï¿½È£ï¿½ï¿½ ï¿½Ô½Ã¹ï¿½ï¿½ï¿½ ï¿½Ò·ï¿½ï¿½É´Ï´ï¿½.
 	 * 
-	 * @param seq °Ô½Ã¹° ¹øÈ£
-	 * @return Article °Ô½Ã¹°
+	 * @param seq ï¿½Ô½Ã¹ï¿½ ï¿½ï¿½È£
+	 * @return Article ï¿½Ô½Ã¹ï¿½
 	 * @throws SQLException
 	 */
 	public Article getArticle(int seq) throws SQLException {
@@ -71,7 +72,7 @@ public class ArticleDao {
 		Connection pconn = null;
 		try {
 			pconn = dbCon.getConnection();
-			return getArticle(seq, QUERY_ONE, pconn);
+			return getArticle(seq, "", pconn);
 		} finally {
 			dbCon.close(pconn, null);
 		}
@@ -79,11 +80,11 @@ public class ArticleDao {
 	}
 	
 	/**
-	 * ÇØ´ç¹øÈ£ÀÇ Á¶È¸¼ö 1Áõ°¡½ÃÅ°°í °Ô½Ã¹°À» ºÒ·¯¿É´Ï´Ù.
+	 * ï¿½Ø´ï¿½ï¿½È£ï¿½ï¿½ ï¿½ï¿½È¸ï¿½ï¿½ 1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å°ï¿½ï¿½ ï¿½Ô½Ã¹ï¿½ï¿½ï¿½ ï¿½Ò·ï¿½ï¿½É´Ï´ï¿½.
 	 * 
-	 * @param seq °Ô½Ã¹° ¹øÈ£
-	 * @param conn Ä¿³Ø¼Ç
-	 * @return Article °Ô½Ã¹°
+	 * @param seq ï¿½Ô½Ã¹ï¿½ ï¿½ï¿½È£
+	 * @param conn Ä¿ï¿½Ø¼ï¿½
+	 * @return Article ï¿½Ô½Ã¹ï¿½
 	 * @throws SQLException
 	 */
 	public Article getArticle(int seq, Connection conn) throws SQLException {
@@ -91,7 +92,7 @@ public class ArticleDao {
 	}
 	
 	/**
-	 * ÁöÁ¤ÇÑ °Ô½Ã¹°À» ºÒ·¯¿É´Ï´Ù.
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô½Ã¹ï¿½ï¿½ï¿½ ï¿½Ò·ï¿½ï¿½É´Ï´ï¿½.
 	 * @param seq
 	 * @param sql
 	 * @param conn
@@ -99,75 +100,29 @@ public class ArticleDao {
 	 * @throws SQLException
 	 */
 	public Article getArticle(int seq, String sql, Connection conn) throws SQLException {
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		Article article = new Article();
-		try {
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1,seq);
-
-			rs = pstmt.executeQuery();
-			if(rs.next()) {
-				article.setBbs(rs.getString("bbsid"));
-				article.setSeq(rs.getInt("seq"));
-				article.setRef(rs.getInt("ref"));
-				article.setStep(rs.getInt("step"));
-				article.setLev(rs.getInt("lev"));
-				article.setId(rs.getString("id"));
-				article.setWriter(CommonUtil.a2k(rs.getString(7)));
-				article.setSubject(CommonUtil.a2k(rs.getString(8)));
-				article.setPassword(rs.getString(9));
-				article.setEmail(CommonUtil.a2k(rs.getString(10)));
-				article.setRead(rs.getInt(11));
-				article.setHtml(rs.getString(12));
-				article.setHomepage(CommonUtil.a2k(rs.getString(13)));
-				article.setWhen(rs.getTimestamp(14));
-				article.setIp(rs.getString(15));
-				article.setMemo(rs.getInt(16));
-				article.setContent(CommonUtil.a2k(rs.getString(17)));
-				article.setCcl_id(rs.getString(18));
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			dbCon.close(null, pstmt, rs);
-		}
+		Session     hSession     = null ;
+		Transaction hTransaction = null ;
+		Article     article      = null ;
 		
-		System.out.println("ArticleDao getArticle");
-	
-		return article;
-		
-//		Session hSession = null;
-//    	Transaction hTransaction = null;
-//    	Article article = null;
-//    	
-//    	try {
-//    		hSession = HibernateUtil.getCurrentSession();
-//            hTransaction = hSession.beginTransaction();
-//            
-//			// ÀÏ·Ã¹øÈ£·Î µ¥ÀÌÅ¸ ÀÐ¾î¿À
-//            System.out.println("seq = "+seq);
-//            article = (Article) hSession.load(Article.class, seq);
-//            System.out.println("article = "+article.getContent());
-////            article = (Article) hSession.get(Article.class, 175301);            
-////            getHibernateTemplate().initialize(article);
-////            Query hQuery = hSession.createQuery(sql);
-////            hQuery.setInteger("SEQ", seq);
-////            article = (Article) hQuery.uniqueResult();
-//			
-//			hTransaction.commit();
-//		} catch (Exception e) {
-//			hTransaction.rollback();
-//			e.printStackTrace();
-//		} finally {
-//			HibernateUtil.closeSession();
-//		}
-//    	return article;
+        try {
+            hSession     = HibernateUtil.getCurrentSession();
+            hTransaction = hSession.beginTransaction();
+            article      = (Article) hSession.get( Article.class, seq);
+            hTransaction.commit();
+        } catch (Exception e) {
+            hTransaction.rollback();
+            e.printStackTrace();
+        } finally {		
+            HibernateUtil.closeSession();
+        }
+        
+		return article ;
 	} 
+	
+	
 	/**
 	 * <pre>
-	 * okboard ÀÔ·Â
+	 * okboard ï¿½Ô·ï¿½
 	 * </pre>
 	 * @param conn
 	 * @param article
@@ -206,7 +161,7 @@ public class ArticleDao {
 	}
 
 	/**
-	 * ´äº¯
+	 * ï¿½äº¯
 	 * @param conn
 	 * @param article
 	 * @return result count
@@ -259,7 +214,7 @@ public class ArticleDao {
 	}
 
 	/**
-	 * ¼öÁ¤
+	 * ï¿½ï¿½ï¿½ï¿½
 	 * @param conn
 	 * @param article
 	 * @return result count
@@ -291,10 +246,10 @@ public class ArticleDao {
 	}
 
 	/**
-	 * ÀÏ·Ã¹øÈ£ °¡Á®¿À±â
+	 * ï¿½Ï·Ã¹ï¿½È£ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * @param conn
 	 * @param query
-	 * @return ÀÏ·Ã¹øÈ£
+	 * @return ï¿½Ï·Ã¹ï¿½È£
 	 * @throws SQLException
 	 */
 	public int fetchNew(Connection conn, String query) throws SQLException {
@@ -312,11 +267,11 @@ public class ArticleDao {
 	}
 
 	/**
-	 * ref ±×·ì¹øÈ£ °¡Á®¿À±â
+	 * ref ï¿½×·ï¿½ï¿½È£ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * @param conn
 	 * @param query
 	 * @param bbs
-	 * @return °Ô½Ã¹° ±×·ì¹øÈ£
+	 * @return ï¿½Ô½Ã¹ï¿½ ï¿½×·ï¿½ï¿½È£
 	 * @throws SQLException
 	 */
 	public int fetchNewRef(Connection conn, String query, String bbs) throws SQLException {
@@ -368,8 +323,8 @@ public class ArticleDao {
 
 	/**
 	 * <pre>
-	 * ÆÄÀÏ Ãß°¡
-	 * # 20091017 ¼­¿µ¾Æºü CUBRID·Î ¸¶ÀÌ±×·¹ÀÌ¼Ç ÇÏ¸é¼­ ½ÃÄö½º ÀÚµ¿»ý¼º ¹æ¹ýÀ¸·Î ¹Ù²ñ
+	 * ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
+	 * # 20091017 ï¿½ï¿½ï¿½ï¿½ï¿½Æºï¿½ CUBRIDï¿½ï¿½ ï¿½ï¿½ï¿½Ì±×·ï¿½ï¿½Ì¼ï¿½ ï¿½Ï¸é¼­ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù²ï¿½
 	 * </pre>
 	 * @param conn
 	 * @param seq
@@ -378,10 +333,10 @@ public class ArticleDao {
 	 */
 	public void addFile(Connection conn, int seq, ArrayList<DownFile> arrdf)
 			throws SQLException {
-		// file ÀÏ·Ã¹øÈ£
+		// file ï¿½Ï·Ã¹ï¿½È£
 		int fseq = fetchNew(conn, QUERY_NEW_FILE_SEQ);
 
-		// file ÀÔ·Â
+		// file ï¿½Ô·ï¿½
 		PreparedStatement pstmt = null;
 		try {
 			pstmt = conn.prepareStatement(QUERY_ADD_FILE);
@@ -415,7 +370,7 @@ public class ArticleDao {
 
 		PreparedStatement pstmt = null;
 		try {
-			// file db¿¡¼­ »èÁ¦ - sts °ª 0 ·Î º¯°æ
+			// file dbï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ - sts ï¿½ï¿½ 0 ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			pstmt = conn.prepareStatement(QUERY_DEL_FSEQ_FILE);
 			for (int i = 0; i < fseqs.length; i++) {
 				pstmt.clearParameters();
@@ -430,7 +385,7 @@ public class ArticleDao {
 			dbCon.close(null, pstmt);
 		}
 
-		// file »èÁ¦ »ý·«
+		// file ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 
 	}
 	public int write(Article article) throws IOException {

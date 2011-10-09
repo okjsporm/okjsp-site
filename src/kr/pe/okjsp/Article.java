@@ -1,7 +1,6 @@
 package kr.pe.okjsp;
 
 import java.sql.*;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -13,17 +12,6 @@ import kr.pe.okjsp.util.*;
 /**
  * @author  kenu
  */
-/*
- * okboard is not mapped 
- * [
- * SELECT okboard.bbsid, seq, ref, lev, subject, id, writer,
- *  hit, wtime, memo, content 
- *  FROM okboard ORDER BY seq DESC for orderby_num() between 1 and ?]
- */
-/*
-SELECT bbs, seq, ref, lev, subject, id, writer, read, when, memo, content 
-FROM kr.pe.okjsp.Article ORDER BY seq DESC for orderby_num() between 1 and ?
-*/
 @Entity
 @Table(name="OKBOARD")
 public class Article {
@@ -33,122 +21,135 @@ public class Article {
 	@Id
     @Column(name = "SEQ", columnDefinition="INTEGER")
 	private int seq;
-	/**
-	 * @uml.property  name="ref"
-	 */
-	@Column(name = "REF")
-	private int ref;
-	/**
-	 * @uml.property  name="step"
-	 */
-	@Column(name = "STEP", columnDefinition="SMALLINT")
-	private int step;
-	/**
-	 * @uml.property  name="lev"
-	 */
-	@Column(name = "LEV", columnDefinition="SMALLINT")
-	private int lev;
-	/**
-	 * @uml.property  name="read"
-	 */
-	@Column(name = "HIT")
-	private int read;
-	/**
-	 * @uml.property  name="memo"
-	 */
-	@Column(name = "MEMO")
-	private int memo;
+
 	/**
 	 * @uml.property  name="bbs"
 	 */
 	@Column(name = "BBSID")
 	private String bbs;
+	
+	/**
+	 * @uml.property  name="ref"    
+	 */
+	@Column(name = "\"REF\"")
+	private int ref ;
+	
+	/**
+	 * @uml.property  name="step"
+	 */
+	@Column(name = "STEP", columnDefinition="SMALLINT")
+	private int step;
+	
+	/**
+	 * @uml.property  name="lev"
+	 */
+	@Column(name = "LEV", columnDefinition="SMALLINT")
+	private int lev;
+	
 	/**
 	 * @uml.property  name="id"
 	 */
 	@Column(name = "ID")
 	private String id;
-	/**
-	 * @uml.property  name="sid"
-	 */
-//	@Column(name = "SID")
-//	private String sid;
+	
 	/**
 	 * @uml.property  name="writer"
 	 */
 	@Column(name = "WRITER")
 	private String writer;
+	
 	/**
 	 * @uml.property  name="subject"
 	 */
 	@Column(name = "SUBJECT")
 	private String subject;
-	/**
-	 * @uml.property  name="content"
-	 */
-	@Column(name = "CONTENT")
-	private String content;
+	
 	/**
 	 * @uml.property  name="password"
 	 */
 	@Column(name = "PASSWORD")
 	private String password;
+	
 	/**
 	 * @uml.property  name="email"
 	 */
 	@Column(name = "EMAIL")
 	private String email;
+	
 	/**
-	 * @uml.property  name="homepage"
+	 * @uml.property  name="read"
 	 */
-	@Column(name = "HOMEPAGE")
-	private String homepage;
+	@Column(name = "HIT")
+	private int read;
+	
 	/**
 	 * @uml.property  name="html"
 	 */
 	@Column(name = "HTML", columnDefinition="char")
 	private String html;
+
+	/**
+	 * @uml.property  name="homepage"
+	 */
+	@Column(name = "HOMEPAGE")
+	private String homepage;
+	
+	/**
+	 * @uml.property  name="wtime"
+	 */
+	@Column(name = "WTIME")
+	private Timestamp when;
+	
 	/**
 	 * @uml.property  name="ip"
 	 */
 	@Column(name = "IP")
 	private String ip;
+	
 	/**
-	 * @uml.property  name="when"
+	 * @uml.property  name="memo"
 	 */
-	@Column(name = "WTIME")
-	private Timestamp when;
+	@Column(name = "MEMO")
+	private int memo;
+	
+	/**
+	 * @uml.property  name="content"
+	 */
+	@Column(name = "CONTENT")
+	private String content;
+
 	/**
 	 * @uml.property  name="ccl_id"
 	 */
 	@Column(name = "CCL_ID", columnDefinition="char")
 	private String ccl_id;
 
+	
 	public Article() {
-	    seq = 0;
-	    ref = 0;
-	    step = 0;
-	    lev  = 0;
-	    read = 0;
-	    memo = 0;
-	    bbs = "";
-//	    id = "";
-	    writer = "";
-	    subject = "";
-	    content = "";
+	    seq      = 0;
+	    ref      = 0;
+	    step     = 0;
+	    lev      = 0;
+	    read     = 0;
+	    memo     = 0;
+	    bbs      = "";
+//	    id       = "";
+	    writer   = "";
+	    subject  = "";
+	    content  = "";
 	    password = "";
-	    email = "";
+	    email    = "";
 	    homepage = "";
-	    html = "";
-	    ip = "";
-	    when = null;
-	    ccl_id = "0";
+	    html     = "";
+	    ip       = "";
+	    when     = null;
+	    ccl_id   = "0";
 	}
 
 	/**
 	 * <pre>
-	 * # 20091018 ¼­¿µ¾Æºü CUBRID·Î ¸¶ÀÌ±×·¹ÀÌ¼Ç ÇÏ¸é¼­ ½ÃÄö½º ÀÚµ¿»ý¼º ¹æ¹ýÀ¸·Î ¹Ù²ñ
-	 *   seq, ref paramÀÇ °ªÀº »ç¿ëµÇÁö ¾Ê´Â´Ù.
+	 * # 20091018 ï¿½ï¿½ï¿½ï¿½ï¿½Æºï¿½ CUBRIDï¿½ï¿½ ï¿½ï¿½ï¿½Ì±×·ï¿½ï¿½Ì¼ï¿½ ï¿½Ï¸é¼­ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù²ï¿½
+	 *   seq, ref paramï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Â´ï¿½.
 	 * </pre>
 	 * @param bbs
 	 * @param seq
@@ -164,7 +165,7 @@ public class Article {
 	 * @param email
 	 * @param homepage
 	 * @param read
-	 * @param when
+	 * @param wtime
 	 * @param html
 	 * @param ip
 	 * @param ccl_id
@@ -178,7 +179,7 @@ public class Article {
 
 	/**
 	 * <pre>
-	 * # 20091018 ¼­¿µ¾Æºü CUBRID·Î ¸¶ÀÌ±×·¹ÀÌ¼Ç ÇÏ¸é¼­ ½ÃÄö½º ÀÚµ¿»ý¼º ¹æ¹ýÀ¸·Î ¹Ù²ñ
+	 * # 20091018 ï¿½ï¿½ï¿½ï¿½ï¿½Æºï¿½ CUBRIDï¿½ï¿½ ï¿½ï¿½ï¿½Ì±×·ï¿½ï¿½Ì¼ï¿½ ï¿½Ï¸é¼­ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù²ï¿½
 	 * </pre>
 	 * @param bbs
 	 * @param step
@@ -192,7 +193,7 @@ public class Article {
 	 * @param email
 	 * @param homepage
 	 * @param read
-	 * @param when
+	 * @param wtime
 	 * @param html
 	 * @param ip
 	 * @param ccl_id
@@ -200,22 +201,22 @@ public class Article {
 	public void setContents(String bbs, int step, int lev, String id, long sid, 
 					String writer, String subject, String content, String password, String email, 
 	                String homepage, int read, Timestamp when, String html, String ip, String ccl_id) {
-		this.bbs=     bbs;
-		this.step=    step;
-		this.lev=     lev;
-		this.id    =  id;
+		this.bbs      = bbs;
+		this.step     = step;
+		this.lev      = lev;
+		this.id       =  id;
 //		this.sid   =  String.valueOf(sid);
-		this.writer=  writer;
-		this.subject= subject;
-		this.content= content;
-		this.password=password;
-		this.email=   email;
-		this.homepage=homepage;
-		this.read=    read;
-		this.when=    when;
-		this.html=    html;
-		this.ip=      ip;
-		this.ccl_id=  ccl_id;
+		this.writer   = writer;
+		this.subject  = subject;
+		this.content  = content;
+		this.password = password;
+		this.email    = email;
+		this.homepage = homepage;
+		this.read     = read;
+		this.when     = when;
+		this.html     = html;
+		this.ip       = ip;
+		this.ccl_id   = ccl_id;
 	}
 
 
@@ -318,12 +319,12 @@ public class Article {
 
 	/**
 	 * @param when
-	 * @uml.property  name="when"
+	 * @uml.property  name="wtime"
 	 */
 	public void setWhen(Timestamp when) {
 		this.when = when;
 	}
-
+	
 	/**
 	 * @param html
 	 * @uml.property  name="html"
@@ -362,7 +363,7 @@ public class Article {
 	 * @uml.property  name="ref"
 	 */
 	public int getRef() {
-		return this.ref;
+		return ref;
 	}
 
 	/**
@@ -468,12 +469,12 @@ public class Article {
 
 	/**
 	 * @return
-	 * @uml.property  name="when"
+	 * @uml.property  name="wtime"
 	 */
 	public Timestamp getWhen() {
-		return this.when;
+		return when;
 	}
-
+	
 	/**
 	 * @return
 	 * @uml.property  name="html"
@@ -501,7 +502,7 @@ public class Article {
 
 	public String getWhen(String format) {
 	    if (this.when==null) return "";
-		return CommonUtil.formatDate(this.when,format);
+		return CommonUtil.formatDate(this.when, format);
 	}
 
 	/**
@@ -551,7 +552,6 @@ public class Article {
 	 * @uml.property  name="sid"
 	 */
 	public void setSid(long sid) {
-//		this.id = String.valueOf(sid);
 		this.id = String.valueOf(sid);
 	}
 
